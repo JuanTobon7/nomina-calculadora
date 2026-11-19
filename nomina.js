@@ -41,6 +41,13 @@ function reglasMes(m) {
   };
 }
 
+// Salario mínimo legal para una jornada (proporcional si trabaja menos horas). Por días: no aplica (se usa el jornal).
+function minimoJornada(jornadaTipo, horasSemana, jornadaMax) {
+  if (jornadaTipo === 'dias') return null;
+  const h = jornadaTipo === 'completo' ? jornadaMax : jornadaTipo === 'medio' ? jornadaMax / 2 : Math.min(horasSemana || 1, jornadaMax);
+  return Math.round(P.SMMLV * h / jornadaMax);
+}
+
 function factoresHoras(R) {
   return [
     { id: 'hed', nombre: 'Hora extra diurna', f: 1 + P.extraDiurna, como: '100 % + 25 %' },
@@ -130,7 +137,8 @@ function calcNomina(i) {
   }
   if (diasVac + diasIncap > diasPeriodo) warn.push(['warn', 'Vacaciones + incapacidad no pueden superar los días del periodo; se ajustaron.']);
   if (especie) {
-    const lim = salario <= P.SMMLV + 1 ? 0.3 : 0.5;
+    // Art. 129: 30 % si devenga el salario mínimo legal (en jornada parcial, el mínimo proporcional); 50 % en los demás casos
+    const lim = salario <= minimoProp + 1 ? 0.3 : 0.5;
     if (especie > lim * salario + 1) warn.push(['danger', `El salario en especie no puede pasar del ${lim * 100} % del salario (art. 129 CST): máximo ${money(lim * salario)}.`]);
   }
   if (!integral && salario <= 2 * P.SMMLV) warn.push(['info', 'Dotación: como gana hasta 2 SMMLV, si lleva más de 3 meses tiene derecho a un par de zapatos y un vestido de labor cada 4 meses, gratis (art. 230 CST). Se entrega en especie, no en dinero.']);
@@ -585,8 +593,16 @@ function leerNomina() {
   };
 }
 
+// Si el salario estaba en el mínimo de la jornada anterior y cambias la jornada, se ajusta al nuevo mínimo
+let minAnterior = null;
 function updateNomina() {
-  const i = leerNomina();
+  let i = leerNomina();
+  const minNuevo = i.tipoSalario === 'integral' ? null : minimoJornada(i.jornadaTipo, i.horasSemana, i.jornadaMax);
+  if (minAnterior != null && minNuevo != null && minNuevo !== minAnterior && Math.abs(i.salario - minAnterior) <= 1) {
+    $('#salario').value = minNuevo;
+    i = leerNomina();
+  }
+  if (minNuevo != null) minAnterior = minNuevo;
   const porDias = i.jornadaTipo === 'dias';
   const integral = i.tipoSalario === 'integral' && !porDias;
   const hogar = i.empleador === 'hogar';

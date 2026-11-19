@@ -213,7 +213,7 @@ const STEPS = [
     id: 'casos', corto: 'Aseo y doméstico', titulo: 'Medio tiempo, por días y servicio doméstico (aseo)',
     lead: ['No todos trabajan igual. Hay tres formas comunes de contratar: tiempo completo, medio tiempo (salario proporcional a las horas) y por días (se paga un valor por cada día, el "jornal"). El empleador puede ser una empresa o un hogar.',
       'El personal de aseo en empresas es un trabajador normal. La empleada o empleado doméstico (interno, externo o por días) tiene los mismos derechos, con algunas reglas propias que verás aquí.'],
-    controls: [C.jornadaTipo, C.horasSemana, C.jornal, C.diasTrab, C.cotizaSemanas, C.empleador, C.hogarVarios, C.especie],
+    controls: [C.jornadaTipo, C.horasSemana, C.salario, C.jornal, C.diasTrab, C.cotizaSemanas, C.empleador, C.hogarVarios, C.especie],
     calc: d => {
       let h = '';
       if (d.porDias) {
@@ -231,8 +231,13 @@ const STEPS = [
         h += checks([['ok', 'Tiempo completo: salario mensual de mínimo 1 SMMLV, jornada de hasta ' + S.jornadaMax + ' h/semana.']]);
       }
       if (d.especie) {
-        const lim = d.salario <= P.SMMLV + 1 ? 0.3 : 0.5;
-        h += eq(`Salario en especie: máximo ${lim * 100} % (art. 129)`, tok(d.salario, 'salario'), op('×'), tok(lim, 'tope', 'k', 'p'), op('='), tok(lim * d.salario, 'máximo en especie', 'out'), op('·'), tok(d.especie, 'pactado', 'in'))
+        const ganaMin = d.salario <= d.minimoProp + 1;
+        const lim = ganaMin ? 0.3 : 0.5, tope = lim * d.salario, ok = d.especie <= tope + 1;
+        h += eq(`Salario en especie: máximo ${lim * 100} % (art. 129)`, tok(d.salario, d.fraccion < 1 ? `salario (${pctTxt(d.fraccion)} de jornada)` : 'salario'), op('×'), tok(lim, 'tope', 'k', 'p'), op('='), tok(tope, 'máximo en especie', 'out'))
+          + checks([
+            ['ok', ganaMin ? `Gana el mínimo${d.fraccion < 1 ? ' proporcional a su jornada' : ''} (${money(d.minimoProp)}): el tope es 30 %.` : `Gana más que el mínimo${d.fraccion < 1 ? ' proporcional' : ''} (${money(d.minimoProp)}): el tope es 50 %.`],
+            [ok ? 'ok' : 'bad', ok ? `Pactado ${money(d.especie)}: está dentro del tope.` : `Pactado ${money(d.especie)}: <b>supera el tope de ${money(tope)}</b>. Bájalo o sube el salario.`],
+          ])
           + eq('Lo que recibe en dinero', tok(d.totalDev - d.totalDed, 'neto total'), op('−'), tok(d.especie, 'en especie', 'in'), op('='), tok(d.neto, 'neto en dinero', 'out'));
       }
       if (d.hogar) {
@@ -576,6 +581,7 @@ function refHTML(id) {
 
 function renderStep() {
   const st = STEPS[cur];
+  { const m = minActual(); if (m != null) sbMinPrev = m; }
   const d = calcular();
   $('#sbMain').innerHTML = `
     <div class="sb-count">Paso ${cur} de ${STEPS.length - 1}</div>
@@ -620,6 +626,9 @@ function parseAns(s) {
 // ---------- 7. Eventos ----------
 function ir(k) { cur = Math.max(0, Math.min(STEPS.length - 1, k)); renderStep(); $('#sbMain').scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); }
 
+// Último salario mínimo de jornada visto (por días no tiene, así que se recuerda el anterior)
+let sbMinPrev = null;
+const minActual = () => S.tipoSalario === 'ordinario' ? minimoJornada(S.jornadaTipo, S.horasSemana, S.jornadaMax) : null;
 function onCtrl(e) {
   const el = e.target; const k = el.dataset && el.dataset.k; if (!k) return;
   let v;
@@ -628,7 +637,13 @@ function onCtrl(e) {
   else { v = parseFloat(el.value); if (!isFinite(v) || v < 0) v = 0; }
   setK(k, v);
   if (k === 'mes') { S.jornadaMax = reglasMes(v).jornadaMax; const jm = $('#sbMain select[data-k="jornadaMax"]'); if (jm) jm.value = S.jornadaMax; }
-  if (k === 'jornadaTipo' && v === 'medio' && S.salario >= P.SMMLV && S.tipoSalario === 'ordinario') { /* deja que el usuario vea la diferencia */ }
+  // Si el salario estaba en el mínimo de la jornada anterior, pasa al mínimo de la nueva (ej. completo → medio tiempo)
+  const minAhora = minActual();
+  if (k !== 'salario' && sbMinPrev != null && minAhora != null && minAhora !== sbMinPrev && Math.abs(S.salario - sbMinPrev) <= 1) {
+    S.salario = minAhora;
+    $('#sbMain').querySelectorAll('[data-k="salario"]').forEach(o => { o.value = minAhora; });
+  }
+  if (minAhora != null) sbMinPrev = minAhora;
   // sincroniza el gemelo (range <-> number)
   $('#sbMain').querySelectorAll(`[data-k="${k}"]`).forEach(o => { if (o !== el && o.type !== 'checkbox' && o.tagName !== 'SELECT') o.value = v; });
   renderDyn();
