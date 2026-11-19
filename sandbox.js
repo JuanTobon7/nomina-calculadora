@@ -25,6 +25,8 @@ const OFICIAL = {
   R238: 'https://normograma.dian.gov.co/dian/compilacion/docs/resolucion_dian_0238_2025.htm',
   D1990: 'https://normativa.colpensiones.gov.co/colpensiones/compilacion/docs/decreto_1990_2016.htm',
   D2616: 'https://normativa.colpensiones.gov.co/colpensiones/compilacion/docs/decreto_2616_2013.htm',
+  D721: 'https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=52630',
+  L1788: 'http://www.secretariasenado.gov.co/senado/basedoc/ley_1788_2016.html',
   D1072: 'https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=72173',
   D780: 'https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=77813',
 };
@@ -54,7 +56,15 @@ const REFS = {
   cst128: { tipo: 'Código', norma: 'Código Sustantivo del Trabajo', art: 'art. 128', dice: 'No son salario los pagos ocasionales por mera liberalidad ni los que las partes pacten expresamente como no salariales.', url: OFICIAL.CST },
   ley100_18: { tipo: 'Ley', norma: 'Ley 100 de 1993', art: 'arts. 18 y 204', dice: 'La base de cotización es el salario mensual. No puede ser menor a 1 SMMLV ni mayor a 25 SMMLV.', url: OFICIAL.L100 },
   ley1393_30: { tipo: 'Ley', norma: 'Ley 1393 de 2010', art: 'art. 30', dice: 'Los pagos no salariales no pueden superar el 40 % del total de la remuneración; lo que exceda se suma a la base de cotización.', url: OFICIAL.L1393 },
-  dec2616: { tipo: 'Decreto', norma: 'Decreto 2616 de 2013', art: 'cotización por semanas', dice: 'Quien trabaja por periodos inferiores a 30 días y gana menos de 1 SMMLV puede cotizar por semanas. (No aplica a medio tiempo que trabaja todos los días.)', url: OFICIAL.D2616 },
+  dec2616: { tipo: 'Decreto', norma: 'Decreto 2616 de 2013', art: 'arts. 2, 5 y 6', dice: 'Quien trabaja por periodos inferiores a 30 días y gana menos de 1 SMMLV en el mes cotiza por semanas: pensión y caja sobre ¼ SMMLV por semana (1–7 días = 1, 8–14 = 2, 15–21 = 3, más de 21 = 4). La ARL se cotiza sobre 1 SMMLV completo. No incluye salud. (No aplica a medio tiempo que trabaja todos los días.)', url: OFICIAL.D2616 },
+  cst173: { tipo: 'Código', norma: 'Código Sustantivo del Trabajo', art: 'art. 173 num. 5', dice: 'Si la jornada pactada no cubre todos los días laborales de la semana, el trabajador tiene derecho a la remuneración del descanso dominical en proporción al tiempo laborado.', url: OFICIAL.CST },
+  cst129: { tipo: 'Código', norma: 'Código Sustantivo del Trabajo', art: 'art. 129', dice: 'Salario en especie: alimentación, habitación o vestuario que el empleador da como parte del salario. Debe valorarse en el contrato y no puede pasar del 50 % del salario, ni del 30 % si el trabajador gana el mínimo.', url: OFICIAL.CST },
+  cst230: { tipo: 'Código', norma: 'Código Sustantivo del Trabajo', art: 'art. 230', dice: 'Dotación: quien gana hasta 2 SMMLV y lleva más de 3 meses recibe gratis, cada 4 meses, un par de zapatos y un vestido de labor.', url: OFICIAL.CST },
+  ley2466_33: { tipo: 'Ley', norma: 'Ley 2466 de 2025 (reforma laboral)', art: 'art. 33', dice: 'Las trabajadoras y trabajadores del servicio doméstico deben vincularse con contrato de trabajo escrito y registrarse en PILA, con los derechos de la Ley 1788 de 2016. Pueden mantener el régimen subsidiado de salud.', url: OFICIAL.L2466 },
+  ley2466_34: { tipo: 'Ley', norma: 'Ley 2466 de 2025 (reforma laboral)', art: 'art. 34', dice: 'Las microempresas y los hogares pueden pagar la seguridad social a tiempo parcial, computada en semanas al final de cada mes.', url: OFICIAL.L2466 },
+  ley1788: { tipo: 'Ley', norma: 'Ley 1788 de 2016', art: 'arts. 1 y 2', dice: 'Reconoce la prima de servicios a las trabajadoras y trabajadores domésticos (modifica el art. 306 del CST).', url: OFICIAL.L1788 },
+  dec721: { tipo: 'Decreto', norma: 'Decreto 721 de 2013', art: 'arts. 1, 2 y 5', dice: 'Los empleadores de servicio doméstico deben afiliar a su trabajador(a) a una Caja de Compensación y aportar con base en el salario devengado. Los hogares no aportan a SENA ni ICBF.', url: OFICIAL.D721 },
+  c372: { tipo: 'Doctrina', norma: 'Corte Constitucional, Sentencia C-372 de 1998', art: 'servicio doméstico interno', dice: 'Las trabajadoras domésticas internas (que viven en la casa) no pueden tener jornadas de más de 10 horas diarias; lo que pase de ahí se paga como hora extra.', url: '' },
   ley100_204: { tipo: 'Ley', norma: 'Ley 100 de 1993', art: 'art. 204', dice: 'Cotización a salud: 12,5 % del IBC → 8,5 % empleador y 4 % trabajador.', url: OFICIAL.L100 },
   ley100_20: { tipo: 'Ley', norma: 'Ley 100 de 1993', art: 'art. 20', dice: 'Cotización a pensión: 16 % del IBC → 12 % empleador y 4 % trabajador.', url: OFICIAL.L100 },
   dec1990: { tipo: 'Decreto', norma: 'Decreto 1990 de 2016', art: 'aproximaciones en PILA', dice: 'En la planilla PILA el IBC se aproxima al peso y el valor de cada cotización al múltiplo de $100 superior.', url: OFICIAL.D1990 },
@@ -92,12 +102,16 @@ function estadoBase(extra = {}) {
     mes, jornadaMax: reglasMes(mes).jornadaMax, tipoSalario: 'ordinario', jornadaTipo: 'completo', horasSemana: 24,
     salario: P.SMMLV, diasPeriodo: 30, diasVac: 0, diasIncap: 0, auxCompleto: true, horas: { ...HORAS0 },
     comisiones: 0, noSalarial: 0, otrasDed: 0, calcRete: true, dependientes: false, prepagada: 0, vivienda: 0,
-    arl: 0.00522, exonerado: true, ...extra,
+    arl: 0.00522, exonerado: true, empleador: 'empresa', hogarVarios: false, jornal: 80000, diasTrab: 8, cotizaSemanas: true, especie: 0, ...extra,
   };
 }
 const SB_PRESETS = {
   'Salario mínimo': {},
   'Medio tiempo': { jornadaTipo: 'medio', salario: Math.round(P.SMMLV / 2) },
+  'Aseo en empresa': { arl: 0.01044 },
+  'Doméstica interna (vivienda y comida)': { empleador: 'hogar', especie: 350000 },
+  'Doméstica por días (2 días/semana)': { empleador: 'hogar', jornadaTipo: 'dias', jornal: 80000, diasTrab: 8 },
+  'Vigilante de noche': { arl: 0.0435, horas: { ...HORAS0, hen: 12, hendf: 4, rn: 70, rdf: 16, rndf: 8 } },
   'Mesero nocturno con domingos': { salario: 2000000, horas: { ...HORAS0, hen: 6, rn: 40, rdf: 16, rndf: 6 } },
   'Vendedor con comisiones': { salario: 2400000, comisiones: 900000, noSalarial: 300000, horas: { ...HORAS0, hed: 8 } },
   'Profesional con retención': { salario: 9500000, dependientes: true, prepagada: 450000, arl: 0.00522 },
@@ -144,16 +158,22 @@ const tabla = rows => `<table class="calc"><tbody>${rows.map(r => `<tr class="${
 const mesesOpts = MESES.map((m, k) => [k + 1, `${m} ${P.anio}`]);
 const C = {
   mes: { k: 'mes', t: 'select', label: 'Mes que liquidas', opts: mesesOpts },
-  jornadaTipo: { k: 'jornadaTipo', t: 'select', label: 'Jornada del trabajador', opts: [['completo', 'Tiempo completo'], ['medio', 'Medio tiempo'], ['otra', 'Otra (horas por semana)']] },
+  jornadaTipo: { k: 'jornadaTipo', t: 'select', label: 'Jornada del trabajador', opts: [['completo', 'Tiempo completo'], ['medio', 'Medio tiempo'], ['otra', 'Otra (horas por semana)'], ['dias', 'Por días (ej. aseo por días)']] },
   horasSemana: { k: 'horasSemana', t: 'int', label: 'Horas pactadas por semana', min: 1, max: 44, when: () => S.jornadaTipo === 'otra' },
   jornadaMax: { k: 'jornadaMax', t: 'select', label: 'Jornada máxima legal vigente', opts: [[44, '44 h/semana (hasta 14-jul-2026)'], [42, '42 h/semana (desde 15-jul-2026)']] },
-  salario: { k: 'salario', t: 'money', label: 'Salario mensual pactado', min: 0, max: 30000000, step: 10000 },
+  salario: { k: 'salario', t: 'money', label: 'Salario mensual pactado', min: 0, max: 30000000, step: 10000, when: () => S.jornadaTipo !== 'dias' },
+  jornal: { k: 'jornal', t: 'money', label: 'Valor del día (jornal)', min: 0, max: 400000, step: 1000, when: () => S.jornadaTipo === 'dias' },
+  diasTrab: { k: 'diasTrab', t: 'int', label: 'Días trabajados en el mes', min: 1, max: 30, when: () => S.jornadaTipo === 'dias' },
+  cotizaSemanas: { k: 'cotizaSemanas', t: 'toggle', label: 'Cotizar por semanas (Decreto 2616 de 2013)', when: () => S.jornadaTipo === 'dias' },
+  empleador: { k: 'empleador', t: 'select', label: 'Tipo de empleador', opts: [['empresa', 'Empresa'], ['hogar', 'Hogar (servicio doméstico)']] },
+  hogarVarios: { k: 'hogarVarios', t: 'toggle', label: 'El hogar tiene 2 o más trabajadores', when: () => S.empleador === 'hogar' },
+  especie: { k: 'especie', t: 'money', label: 'Salario en especie (vivienda, comida) incluido en el salario', min: 0, max: 1500000, step: 10000, when: () => S.jornadaTipo !== 'dias' && S.tipoSalario !== 'integral' },
   tipoSalario: { k: 'tipoSalario', t: 'select', label: 'Tipo de salario', opts: [['ordinario', 'Ordinario'], ['integral', 'Integral']] },
 };
 
 const STEPS = [
   { // 0
-    corto: 'Inicio', titulo: 'Bienvenido al sandbox de nómina',
+    id: 'inicio', corto: 'Inicio', titulo: 'Bienvenido al sandbox de nómina',
     lead: ['La nómina es el cálculo de lo que se le paga a un trabajador cada mes y de lo que la empresa paga por él. Aquí vas a construir un desprendible de nómina real, línea por línea.',
       'En cada paso: cambia los datos, mira cómo se calcula, prueba el "¿Y si…?", ponte a prueba y revisa de qué norma sale la regla. El desprendible de la derecha se va llenando.'],
     controls: [C.mes, C.jornadaTipo, C.horasSemana],
@@ -163,17 +183,18 @@ const STEPS = [
       <p style="margin:14px 0 6px" class="muted">Así leerás los cálculos:</p>${LEYENDA}
       <p style="margin:14px 0 6px" class="muted">Y así se marcan las referencias:</p>
       <div class="toklegend"><span class="tb">Ley / Código</span><span class="tb t-decreto">Decreto / Resolución</span><span class="tb t-doctrina">Doctrina / Práctica (no es norma)</span></div>`,
-    tryIt: 'Elige "Mesero nocturno con domingos" y avanza: verás recargos, horas extra y cómo cambian todos los descuentos.',
+    tryIt: 'Elige "Doméstica por días (2 días/semana)" y avanza: verás el descanso dominical proporcional y la cotización por semanas. O elige "Vigilante de noche" para ver recargos y horas extra.',
     refs: [],
   },
   { // 1
-    corto: 'Salario', titulo: 'El salario y los umbrales que lo cambian todo',
+    id: 'salario', corto: 'Salario', titulo: 'El salario y los umbrales que lo cambian todo',
     lead: ['El salario se pacta entre trabajador y empresa, pero nunca puede ser menor al salario mínimo (SMMLV). Si trabaja menos horas que la jornada máxima, el mínimo es proporcional.',
       'Mide el salario en "número de SMMLV": varias reglas se activan al cruzar 2, 4, 10 o 13 salarios mínimos.'],
-    controls: [C.salario, C.tipoSalario, C.jornadaTipo],
+    controls: [C.salario, C.jornal, C.tipoSalario, C.jornadaTipo],
     calc: d => {
       const k = d.salario / P.SMMLV;
-      return eq('¿Cuántos salarios mínimos gana?', tok(d.salario, 'salario'), op('÷'), tok(P.SMMLV, 'SMMLV 2026', 'k'), op('='), tok(n(k, 2) + ' SMMLV', 'resultado', 'out', 't'))
+      return (d.porDias ? eq('Por días: equivalente mensual del jornal', tok(d.jornal, 'jornal'), op('×'), tok(30, 'días', 'k', 'n'), op('='), tok(d.salario, 'equivalente mensual', 'out')) : '')
+        + eq('¿Cuántos salarios mínimos gana?', tok(d.salario, d.porDias ? 'equivalente mensual' : 'salario'), op('÷'), tok(P.SMMLV, 'SMMLV 2026', 'k'), op('='), tok(n(k, 2) + ' SMMLV', 'resultado', 'out', 't'))
         + (d.fraccion < 1 ? eq('Mínimo proporcional (medio tiempo / parcial)', tok(P.SMMLV, 'SMMLV', 'k'), op('×'), tok(d.fraccion, 'de la jornada', 'in', 'p'), op('='), tok(d.minimoProp, 'mínimo para sus horas', 'out')) : '')
         + checks([
           d.integral ? [d.salario >= 13 * P.SMMLV ? 'ok' : 'bad', `Salario integral: mínimo 13 SMMLV (${money(13 * P.SMMLV)}) ${d.salario >= 13 * P.SMMLV ? '— cumple' : '— <b>NO cumple</b>'}`]
@@ -188,19 +209,67 @@ const STEPS = [
     quiz: { q: '¿Cuánto es 2 SMMLV en 2026? (tope para recibir auxilio de transporte)', a: () => 2 * P.SMMLV, exp: () => `${money(P.SMMLV)} × 2 = ${money(2 * P.SMMLV)}` },
     refs: ['dec1469', 'dec0159', 'cst145', 'cst132'],
   },
+  { // 1b · casos especiales
+    id: 'casos', corto: 'Aseo y doméstico', titulo: 'Medio tiempo, por días y servicio doméstico (aseo)',
+    lead: ['No todos trabajan igual. Hay tres formas comunes de contratar: tiempo completo, medio tiempo (salario proporcional a las horas) y por días (se paga un valor por cada día, el "jornal"). El empleador puede ser una empresa o un hogar.',
+      'El personal de aseo en empresas es un trabajador normal. La empleada o empleado doméstico (interno, externo o por días) tiene los mismos derechos, con algunas reglas propias que verás aquí.'],
+    controls: [C.jornadaTipo, C.horasSemana, C.jornal, C.diasTrab, C.cotizaSemanas, C.empleador, C.hogarVarios, C.especie],
+    calc: d => {
+      let h = '';
+      if (d.porDias) {
+        h += eq('1. El jornal no puede ser menor al mínimo diario', tok(d.jornal, 'jornal pactado'), op('≥'), tok(P.SMMLV, 'SMMLV', 'k'), op('÷'), tok(30, 'días', 'k', 'n'), op('='), tok(P.SMMLV / 30, 'jornal mínimo', 'out'))
+          + eq('2. Pago de los días trabajados', tok(d.jornal, 'jornal'), op('×'), tok(d.diasLab, 'días trabajados', 'in', 'n'), op('='), tok(d.salDias, 'días trabajados', 'out'))
+          + eq('3. Descanso dominical proporcional (art. 173 num. 5)', tok(d.jornal, 'jornal'), op('×'), tok(d.diasLab, 'días', 'in', 'n'), op('÷'), tok(6, '1 domingo por 6 días', 'k', 'n'), op('='), tok(d.dominical, 'dominical', 'out'));
+        h += d.semanasMode
+          ? eq('4. Cotización por semanas (Decreto 2616)', tok(d.diasLab, 'días', 'in', 'n'), op('→'), tok(d.semanas + ' sem.', 'semanas', 'out', 't'), op('×'), tok(P.SMMLV / 4, '¼ SMMLV', 'k'), op('='), tok(d.ibc, 'base pensión y caja', 'out'))
+            + checks([['ok', 'Pensión (16 %) y Caja (4 %) sobre esa base'], ['ok', `ARL sobre 1 SMMLV completo (${money(P.SMMLV)})`], ['no', 'Salud: no se cotiza; el trabajador queda en el régimen subsidiado o como beneficiario']])
+          : checks([['no', S.cotizaSemanas ? 'Este mes gana 1 SMMLV o más: cotiza por el mes completo (no aplica el Decreto 2616).' : 'Cotiza por el mes completo, con base mínima de 1 SMMLV.']]);
+      } else if (d.fraccion < 1) {
+        h += eq('Medio tiempo / parcial: el mínimo es proporcional', tok(P.SMMLV, 'SMMLV', 'k'), op('×'), tok(d.fraccion, 'de la jornada', 'in', 'p'), op('='), tok(d.minimoProp, 'salario mínimo para sus horas', 'out'))
+          + checks([['ok', 'Auxilio de transporte completo si va a trabajar todos los días'], ['bad', `Salud y pensión: se cotiza sobre al menos 1 SMMLV (${money(P.SMMLV)}) aunque gane menos`], ['ok', 'Prima, cesantías y vacaciones sobre lo que realmente gana']]);
+      } else {
+        h += checks([['ok', 'Tiempo completo: salario mensual de mínimo 1 SMMLV, jornada de hasta ' + S.jornadaMax + ' h/semana.']]);
+      }
+      if (d.especie) {
+        const lim = d.salario <= P.SMMLV + 1 ? 0.3 : 0.5;
+        h += eq(`Salario en especie: máximo ${lim * 100} % (art. 129)`, tok(d.salario, 'salario'), op('×'), tok(lim, 'tope', 'k', 'p'), op('='), tok(lim * d.salario, 'máximo en especie', 'out'), op('·'), tok(d.especie, 'pactado', 'in'))
+          + eq('Lo que recibe en dinero', tok(d.totalDev - d.totalDed, 'neto total'), op('−'), tok(d.especie, 'en especie', 'in'), op('='), tok(d.neto, 'neto en dinero', 'out'));
+      }
+      if (d.hogar) {
+        h += `<p style="margin:12px 0 6px"><b>Servicio doméstico (empleador hogar):</b></p>` + checks([
+          ['ok', 'Contrato de trabajo escrito y registro en PILA (Ley 2466, art. 33)'],
+          ['ok', 'Prima, cesantías, intereses y vacaciones como cualquier trabajador (Ley 1788 de 2016)'],
+          ['ok', 'Caja de Compensación 4 % (Decreto 721 de 2013)'],
+          ['no', 'El hogar NO paga SENA ni ICBF'],
+          [d.exon ? 'ok' : 'bad', d.exon ? 'Hogar con 2 o más trabajadores: exonerado de salud 8,5 %' : 'Hogar con un solo trabajador: SÍ paga salud 8,5 %'],
+          ['ok', 'Interna (vive en la casa): jornada máxima de 10 horas diarias; lo demás es hora extra'],
+          ['ok', 'Dotación cada 4 meses si gana hasta 2 SMMLV'],
+        ]);
+      } else if (d.salario <= 2 * P.SMMLV && !d.integral) {
+        h += `<p style="margin:12px 0 6px"><b>Personal de aseo en empresa:</b></p>` + checks([['ok', 'Mismos derechos de cualquier trabajador: auxilio, prima, cesantías, vacaciones'], ['ok', 'Dotación (zapatos y vestido de labor) cada 4 meses'], ['ok', 'ARL según la actividad: confirma la clase de riesgo con tu ARL']]);
+      }
+      return h;
+    },
+    tryIt: 'Elige "Por días", jornal $80.000 y 8 días: la base de pensión sube a 2 semanas (½ SMMLV). Luego pon 22 días: pasa de 1 SMMLV y ya cotiza como mes completo.',
+    quiz: { q: '¿Cuál es el valor mínimo de un día de trabajo (jornal) en 2026?', a: () => P.SMMLV / 30, exp: () => `${money(P.SMMLV)} ÷ 30 = ${money(P.SMMLV / 30)}` },
+    refs: ['cst145', 'cst173', 'dec2616', 'ley2466_33', 'ley2466_34', 'ley1788', 'dec721', 'cst129', 'c372', 'cst230', 'auxMedio'],
+  },
   { // 2
-    corto: 'Valor día', titulo: 'Valor del día: el mes siempre tiene 30 días',
+    id: 'dia', corto: 'Valor día', titulo: 'Valor del día: el mes siempre tiene 30 días',
     lead: ['En nómina todos los meses son de 30 días ("mes comercial"), incluso febrero o los meses de 31. Así el salario mensual es igual todos los meses.',
       'Si el trabajador entró o salió a mitad de mes, se paga solo por los días del periodo.'],
-    controls: [C.salario, { k: 'diasPeriodo', t: 'int', label: 'Días del periodo', min: 1, max: 30 }],
-    calc: d => eq('1. Valor de un día', tok(d.salario, 'salario'), op('÷'), tok(30, 'días mes comercial', 'k', 'n'), op('='), tok(d.valorDia, 'valor día', 'out'))
+    controls: [C.salario, C.jornal, C.diasTrab, { k: 'diasPeriodo', t: 'int', label: 'Días del periodo', min: 1, max: 30, when: () => S.jornadaTipo !== 'dias' }],
+    calc: d => d.porDias
+      ? eq('Por días: el valor del día ya está pactado', tok(d.jornal, 'jornal = valor día', 'out'))
+        + eq('Días trabajados + descanso dominical proporcional', tok(d.jornal, 'jornal'), op('×'), tok(d.diasLab, 'días', 'in', 'n'), op('+'), tok(d.jornal, 'jornal'), op('×'), tok(d.diasLab, 'días', 'in', 'n'), op('÷'), tok(6, '', 'k', 'n'), op('='), tok(d.salDias + d.dominical, 'pago del periodo', 'out'))
+      : eq('1. Valor de un día', tok(d.salario, 'salario'), op('÷'), tok(30, 'días mes comercial', 'k', 'n'), op('='), tok(d.valorDia, 'valor día', 'out'))
       + eq(`2. Salario de los días laborados${d.diasVac || d.diasIncap ? ' (sin vacaciones ni incapacidad)' : ''}`, tok(d.valorDia, 'valor día', 'out'), op('×'), tok(d.diasLab, 'días laborados', 'in', 'n'), op('='), tok(d.salDias, 'salario del periodo', 'out')),
     tryIt: 'Pon <b>15 días</b>: así se liquida a alguien que entró el día 16. Observa que el auxilio de transporte también baja a la mitad.',
     quiz: { q: 'Con el salario actual, ¿cuánto vale un día de trabajo?', a: d => d.valorDia, exp: d => `${money(d.salario)} ÷ 30 = ${money(d.valorDia)}` },
     refs: ['mes30'],
   },
   { // 3
-    corto: 'Valor hora', titulo: 'Valor de la hora y la jornada de 42 horas',
+    id: 'hora', corto: 'Valor hora', titulo: 'Valor de la hora y la jornada de 42 horas',
     lead: ['Para pagar horas extra y recargos necesitas el valor de una hora ordinaria. Se divide el salario entre las horas que el trabajador debe laborar en el mes.',
       'La jornada máxima viene bajando por la Ley 2101: 44 h hasta el 14 de julio de 2026 y 42 h desde el 15 de julio. Menos horas = cada hora vale más.'],
     controls: [C.mes, C.jornadaMax, C.jornadaTipo, C.horasSemana],
@@ -212,24 +281,24 @@ const STEPS = [
     refs: ['ley2101', 'horasPractica'],
   },
   { // 4
-    corto: 'Auxilio', titulo: 'Auxilio de transporte',
+    id: 'aux', corto: 'Auxilio', titulo: 'Auxilio de transporte',
     lead: ['Es un pago para ayudar con el transporte a quienes ganan hasta 2 SMMLV. No es salario para seguridad social ni vacaciones, pero sí cuenta para prima y cesantías.',
       'Se paga por los días efectivamente trabajados: no se paga en vacaciones ni incapacidades.'],
-    controls: [C.salario, { k: 'auxCompleto', t: 'toggle', label: 'Pagar completo aunque sea medio tiempo (va todos los días)', when: () => S.jornadaTipo !== 'completo' }],
+    controls: [C.salario, C.jornal, C.diasTrab, { k: 'auxCompleto', t: 'toggle', label: 'Pagar completo aunque sea medio tiempo (va todos los días)', when: () => S.jornadaTipo !== 'completo' && S.jornadaTipo !== 'dias' }],
     calc: d => {
       if (d.integral) return checks([['no', 'Salario integral: no tiene auxilio de transporte.']]);
       if (!d.tieneAux) return checks([['no', `Gana ${money(d.salario)}, más de 2 SMMLV (${money(2 * P.SMMLV)}): <b>no recibe auxilio</b>.`]]);
-      const parcial = S.jornadaTipo !== 'completo' && !S.auxCompleto;
+      const parcial = S.jornadaTipo !== 'completo' && S.jornadaTipo !== 'dias' && !S.auxCompleto;
       return eq('Auxilio del mes', tok(P.AUX, 'auxilio 2026', 'k'), op('÷'), tok(30, 'días', 'k', 'n'), op('×'), tok(d.diasLab, 'días trabajados', 'in', 'n'),
         ...(parcial ? [op('×'), tok(d.fraccion, 'proporción jornada', 'in', 'p')] : []), op('='), tok(d.aux, 'auxilio', 'out'))
         + checks([['ok', `Gana ${money(d.salario)} ≤ ${money(2 * P.SMMLV)} → tiene derecho`], ['no', 'NO entra al IBC (salud, pensión)'], ['no', 'NO entra a la base de vacaciones'], ['ok', 'SÍ entra a la base de prima y cesantías']]);
     },
-    tryIt: 'En el paso 7 agrega días de vacaciones y vuelve aquí: el auxilio baja porque esos días no se trabajan.',
+    tryIt: 'En el paso «Novedades» agrega días de vacaciones y vuelve aquí: el auxilio baja porque esos días no se trabajan.',
     quiz: { q: '¿Cuánto auxilio recibe quien trabajó solo 15 días del mes?', a: () => P.AUX / 2, exp: () => `${money(P.AUX)} ÷ 30 × 15 = ${money(P.AUX / 2)}` },
     refs: ['dec1470', 'auxPrest', 'auxMedio'],
   },
   { // 5
-    corto: 'Horas extra', titulo: 'Horas extras: trabajar más allá de la jornada',
+    id: 'extras', corto: 'Horas extra', titulo: 'Horas extras: trabajar más allá de la jornada',
     lead: ['Hora extra es la que pasa de la jornada pactada o de la máxima legal. Se paga la hora completa MÁS un recargo: 25 % si es diurna, 75 % si es nocturna.',
       'Si además es domingo o festivo, se suma el recargo dominical. Máximo 2 horas extra al día y 12 a la semana.'],
     controls: [
@@ -253,7 +322,7 @@ const STEPS = [
     refs: ['cst168', 'ley2466_10', 'ley2466_14', 'ley50_22'],
   },
   { // 6
-    corto: 'Recargos', titulo: 'Recargos: noche, domingos y festivos',
+    id: 'recargos', corto: 'Recargos', titulo: 'Recargos: noche, domingos y festivos',
     lead: ['Recargo es trabajar DENTRO de tu jornada normal, pero de noche o en domingo/festivo. Como esa hora ya está pagada en el salario mensual, solo se paga el porcentaje adicional.',
       'El recargo dominical está subiendo por la reforma laboral: 80 % → 90 % (1 de julio de 2026) → 100 % (2027).'],
     controls: [C.mes,
@@ -272,11 +341,12 @@ const STEPS = [
     refs: ['ley2466_14', 'ley2466_10', 'cst168'],
   },
   { // 7
-    corto: 'Novedades', titulo: 'Novedades: vacaciones e incapacidades',
+    id: 'novedades', corto: 'Novedades', titulo: 'Novedades: vacaciones e incapacidades',
     lead: ['Las "novedades" son los días del mes que no se trabajaron pero sí se pagan (o se pagan distinto).',
       'Vacaciones: se pagan con el salario ordinario, sin auxilio ni horas extra. Incapacidad por enfermedad general: 66,67 % del salario, pero nunca menos del mínimo diario.'],
     controls: [{ k: 'diasVac', t: 'int', label: 'Días de vacaciones (calendario) en el mes', min: 0, max: 30 }, { k: 'diasIncap', t: 'int', label: 'Días de incapacidad por enfermedad general', min: 0, max: 30 }],
     calc: d => {
+      if (d.porDias) return checks([['no', 'En el trabajo por días solo se pagan los días trabajados (y su dominical proporcional). Las vacaciones se ganan igual —15 días hábiles por año, en proporción— y se pagan al disfrutarlas o al terminar el contrato.']]);
       const diaInc = d.diasIncap ? d.incap / d.diasIncap : Math.max(d.valorDia * 2 / 3, Math.min(P.SMMLV / 30, d.valorDia));
       return eq('Días del periodo', tok(d.diasPeriodo, 'periodo', 'in', 'n'), op('−'), tok(d.diasVac, 'vacaciones', 'in', 'n'), op('−'), tok(d.diasIncap, 'incapacidad', 'in', 'n'), op('='), tok(d.diasLab, 'días laborados', 'out', 'n'))
         + eq('Vacaciones', tok(d.valorDia, 'valor día'), op('×'), tok(d.diasVac, 'días', 'in', 'n'), op('='), tok(d.vac, 'vacaciones', 'out'))
@@ -289,7 +359,7 @@ const STEPS = [
     refs: ['cst186', 'cst227', 'dec780', 'incapMin'],
   },
   { // 8
-    corto: 'Devengado', titulo: 'Total devengado: salarial vs. no salarial',
+    id: 'devengado', corto: 'Devengado', titulo: 'Total devengado: salarial vs. no salarial',
     lead: ['Devengado es la suma de todo lo que gana en el mes. Pero no todo pesa igual: los pagos SALARIALES cuentan para seguridad social y prestaciones; los NO salariales, en principio, no.',
       'Comisiones = salario. Una bonificación pactada expresamente como no salarial = no salario.'],
     controls: [{ k: 'comisiones', t: 'money', label: 'Comisiones o bonificación salarial', min: 0, max: 10000000, step: 10000 }, { k: 'noSalarial', t: 'money', label: 'Bonificación NO salarial', min: 0, max: 10000000, step: 10000 }],
@@ -299,34 +369,37 @@ const STEPS = [
           <span style="width:${w(d.baseSalarial)};background:var(--c-neto)">${d.baseSalarial / tot > 0.15 ? 'salarial' : ''}</span>
           <span style="width:${w(d.aux)};background:var(--c-apo)">${d.aux / tot > 0.08 ? 'auxilio' : ''}</span>
           <span style="width:${w(S.noSalarial)};background:var(--c-prov)">${S.noSalarial / tot > 0.1 ? 'no salarial' : ''}</span></div>`
-        + eq('Suma', tok(d.salDias + d.vac + d.incap, 'salario + novedades'), op('+'), tok(d.hExtras + d.hRec, 'extras y recargos'), op('+'), tok(S.comisiones, 'comisiones'), op('+'), tok(d.aux, 'auxilio'), op('+'), tok(S.noSalarial, 'no salarial'), op('='), tok(d.totalDev, 'total devengado', 'out'));
+        + eq('Suma', tok(d.salDias + d.dominical + d.vac + d.incap, d.porDias ? 'días + dominical' : 'salario + novedades'), op('+'), tok(d.hExtras + d.hRec, 'extras y recargos'), op('+'), tok(S.comisiones, 'comisiones'), op('+'), tok(d.aux, 'auxilio'), op('+'), tok(S.noSalarial, 'no salarial'), op('='), tok(d.totalDev, 'total devengado', 'out'));
     },
     tryIt: 'Pon una bonificación no salarial de <b>$2.000.000</b> con salario mínimo y pasa al siguiente paso: una parte terminará cotizando por la regla del 40 %.',
     quiz: { q: '¿Cuál es el total devengado de este mes?', a: d => d.totalDev, exp: d => `Suma de todos los pagos = ${money(d.totalDev)}` },
     refs: ['cst127', 'cst128'],
   },
   { // 9
-    corto: 'IBC', titulo: 'IBC: la base sobre la que se cotiza',
+    id: 'ibc', corto: 'IBC', titulo: 'IBC: la base sobre la que se cotiza',
     lead: ['El Ingreso Base de Cotización (IBC) es la base para salud, pensión y ARL. Solo incluye pagos salariales; el auxilio de transporte nunca entra.',
       'Tiene un piso de 1 SMMLV y un techo de 25 SMMLV. Y si los pagos no salariales pasan del 40 % de lo que gana, el exceso también cotiza.'],
     controls: [{ k: 'noSalarial', t: 'money', label: 'Bonificación NO salarial (para probar la regla del 40 %)', min: 0, max: 10000000, step: 10000 }],
     calc: d => `<div class="inout">
-        <div><h4>✓ Entra al IBC</h4>${checks([['ok', `Salario y novedades: ${money(d.salDias + d.vac + d.incap)}`], ['ok', `Extras y recargos: ${money(d.hExtras + d.hRec)}`], ['ok', `Comisiones: ${money(S.comisiones)}`], [d.exceso40 ? 'ok' : 'no', `Exceso no salarial sobre el 40 %: ${money(d.exceso40)}`]])}</div>
+        <div><h4>✓ Entra al IBC</h4>${checks([['ok', `${d.porDias ? 'Días trabajados + dominical' : 'Salario y novedades'}: ${money(d.salDias + d.dominical + d.vac + d.incap)}`], ['ok', `Extras y recargos: ${money(d.hExtras + d.hRec)}`], ['ok', `Comisiones: ${money(S.comisiones)}`], [d.exceso40 ? 'ok' : 'no', `Exceso no salarial sobre el 40 %: ${money(d.exceso40)}`]])}</div>
         <div><h4>✗ No entra</h4>${checks([['no', `Auxilio de transporte: ${money(d.aux)}`], ['no', `No salarial hasta el 40 %: ${money(S.noSalarial - d.exceso40)}`]])}</div></div>`
       + (d.integral ? eq('Salario integral: cotiza el 70 %', tok(d.baseSalarial, 'pagos salariales'), op('×'), tok(0.7, 'Ley 789 art. 49', 'k', 'p'), op('='), tok(d.baseIBC, 'base', 'out')) : '')
       + eq('Regla del 40 % (Ley 1393)', tok(S.noSalarial, 'no salarial'), op('−'), tok(0.4, 'tope', 'k', 'p'), op('×'), tok(d.totalRem, 'remuneración total'), op('='), tok(d.exceso40, 'exceso que cotiza', 'out'))
-      + eq('IBC final', tok(d.baseIBC, 'base salarial'), op('+'), tok(d.exceso40, 'exceso 40 %'), op('→'), tok(d.minIBC, 'piso 1 SMMLV', 'k'), op('/'), tok(d.maxIBC, 'techo 25 SMMLV', 'k'), op('='), tok(d.ibc, 'IBC', 'out'))
-      + (d.baseIBC + d.exceso40 < d.minIBC ? checks([['bad', 'La base quedó por debajo de 1 SMMLV, así que se sube al mínimo. Pasa en medio tiempo: cotiza como si ganara el mínimo completo.']]) : ''),
-    tryIt: 'Vuelve al paso 1, elige <b>medio tiempo</b> con medio mínimo y regresa: el IBC sube a ' + money(P.SMMLV) + '.',
+      + eq('IBC final', tok(d.baseIBC, 'base salarial'), op('+'), tok(d.exceso40, 'exceso 40 %'), op('→'), tok(d.minIBC, d.semanasMode ? `piso ${d.semanas} semana(s)` : 'piso 1 SMMLV', 'k'), op('/'), tok(d.maxIBC, 'techo 25 SMMLV', 'k'), op('='), tok(d.ibc, 'IBC', 'out'))
+      + (d.semanasMode ? checks([['ok', `Por días con Decreto 2616: el piso no es 1 SMMLV sino ¼ SMMLV por semana trabajada (${d.semanas} semana(s) = ${money(d.minIBC)}).`]])
+        : d.baseIBC + d.exceso40 < d.minIBC ? checks([['bad', 'La base quedó por debajo de 1 SMMLV, así que se sube al mínimo. Pasa en medio tiempo: cotiza como si ganara el mínimo completo.']]) : ''),
+    tryIt: 'Vuelve al paso «Aseo y doméstico», elige <b>medio tiempo</b> con medio mínimo y regresa: el IBC sube a ' + money(P.SMMLV) + '.',
     quiz: { q: '¿Cuál es el IBC de este mes?', a: d => d.ibc, exp: d => `Pagos salariales${d.exceso40 ? ' + exceso del 40 %' : ''}, con piso y techo = ${money(d.ibc)}` },
     refs: ['ley100_18', 'ley1393_30', 'ley789_49', 'dec2616'],
   },
   { // 10
-    corto: 'Salud y pensión', titulo: 'Salud y pensión del trabajador: 4 % + 4 %',
+    id: 'salud', corto: 'Salud y pensión', titulo: 'Salud y pensión del trabajador: 4 % + 4 %',
     lead: ['Salud cuesta 12,5 % del IBC y pensión 16 %. La mayor parte la paga la empresa; al trabajador le descuentan 4 % de cada una.',
       'En la planilla PILA cada aporte se redondea al múltiplo de $100 hacia arriba.'],
     controls: [C.salario],
-    calc: d => eq('Salud del trabajador', tok(d.ibc, 'IBC', 'out'), op('×'), tok(0.04, 'trabajador', 'k', 'p'), op('='), tok(d.ibc * 0.04, 'exacto'), op('↑100'), tok(d.salud, 'salud', 'out'))
+    calc: d => (d.semanasMode
+      ? checks([['no', 'Salud: con cotización por semanas (Decreto 2616) no se descuenta salud. El trabajador queda en el régimen subsidiado o como beneficiario; la Ley 2466 (art. 33) lo permite para el servicio doméstico.']])
+      : eq('Salud del trabajador', tok(d.ibc, 'IBC', 'out'), op('×'), tok(0.04, 'trabajador', 'k', 'p'), op('='), tok(d.ibc * 0.04, 'exacto'), op('↑100'), tok(d.salud, 'salud', 'out')))
       + eq('Pensión del trabajador', tok(d.ibc, 'IBC', 'out'), op('×'), tok(0.04, 'trabajador', 'k', 'p'), op('='), tok(d.ibc * 0.04, 'exacto'), op('↑100'), tok(d.pension, 'pensión', 'out'))
       + tabla([{ c: '<b>Concepto</b>', v: '<b>Trabajador · Empresa · Total</b>' }, { c: 'Salud', v: '4 % · 8,5 % · 12,5 %' }, { c: 'Pensión', v: '4 % · 12 % · 16 %' }]),
     tryIt: 'Con el mínimo, 4 % da ' + money(P.SMMLV * 0.04) + ' exactos, pero se descuentan ' + money(Math.ceil(P.SMMLV * 0.04 / 100) * 100) + ' por el redondeo de PILA.',
@@ -334,7 +407,7 @@ const STEPS = [
     refs: ['ley100_204', 'ley100_20', 'dec1990'],
   },
   { // 11
-    corto: 'Solidaridad', titulo: 'Fondo de Solidaridad Pensional',
+    id: 'fsp', corto: 'Solidaridad', titulo: 'Fondo de Solidaridad Pensional',
     lead: ['Quien cotiza sobre 4 SMMLV o más aporta un porcentaje adicional a pensión para subsidiar a quienes no pueden cotizar.'],
     controls: [C.salario],
     calc: d => {
@@ -348,7 +421,7 @@ const STEPS = [
     refs: ['ley797_8'],
   },
   { // 12
-    corto: 'Retención', titulo: 'Retención en la fuente (procedimiento 1)',
+    id: 'rete', corto: 'Retención', titulo: 'Retención en la fuente (procedimiento 1)',
     lead: ['Es un anticipo del impuesto de renta que la empresa descuenta y paga a la DIAN. Solo aplica cuando, después de "depurar" el ingreso, la base supera 95 UVT.',
       'Depurar = restar aportes obligatorios, deducciones (dependientes, prepagada, vivienda) y la renta exenta del 25 %, con un límite del 40 %.'],
     controls: [C.salario, { k: 'calcRete', t: 'toggle', label: 'Calcular retención' }, { k: 'dependientes', t: 'toggle', label: 'Tiene dependientes económicos' },
@@ -370,37 +443,41 @@ const STEPS = [
         + tabla([{ c: '<b>Rango en UVT</b>', v: '<b>Fórmula</b>' }, ...TABLA383.map(t => ({ cls: t === x.tramo ? 'hl' : '', c: t.hasta === Infinity ? `más de ${t.desde}` : `${t.desde} a ${t.hasta}`, v: t.tasa ? `(base − ${t.desde}) × ${pctTxt(t.tasa)} + ${t.mas} UVT` : '0' }))])
         + eq('Retención', tok(n(x.impU) + ' UVT', 'impuesto', 'out', 't'), op('×'), tok(U, 'UVT', 'k'), op('≈'), tok(d.rete, 'redondeado a miles', 'out'));
     },
-    tryIt: 'Elige "Profesional con retención" en el paso 0 y aquí quita los dependientes: la retención sube.',
+    tryIt: 'Elige "Profesional con retención" en el paso «Inicio» y aquí quita los dependientes: la retención sube.',
     quiz: { q: '¿Cuánto es 95 UVT en pesos? (hasta ahí la tarifa es 0 %)', a: () => 95 * P.UVT, exp: () => `95 × ${money(P.UVT)} = ${money(95 * P.UVT)}` },
     refs: ['et383', 'et206', 'et336', 'et387', 'res238'],
   },
   { // 13
-    corto: 'Neto', titulo: 'Neto a pagar: lo que llega a la cuenta',
+    id: 'neto', corto: 'Neto', titulo: 'Neto a pagar: lo que llega a la cuenta',
     lead: ['Neto = total devengado − total deducciones. Cualquier otro descuento (préstamos, libranzas) necesita autorización escrita del trabajador u orden judicial.'],
     controls: [{ k: 'otrasDed', t: 'money', label: 'Otros descuentos (préstamo, libranza)', min: 0, max: 3000000, step: 10000 }],
     calc: d => eq('Deducciones', tok(d.salud, 'salud'), op('+'), tok(d.pension, 'pensión'), op('+'), tok(d.fsp, 'FSP'), op('+'), tok(d.rete, 'retención'), op('+'), tok(S.otrasDed, 'otros'), op('='), tok(d.totalDed, 'total deducciones', 'out'))
-      + eq('Neto', tok(d.totalDev, 'devengado', 'out'), op('−'), tok(d.totalDed, 'deducciones', 'out'), op('='), tok(d.neto, 'NETO A PAGAR', 'out')),
+      + eq('Neto', tok(d.totalDev, 'devengado', 'out'), op('−'), tok(d.totalDed, 'deducciones', 'out'), ...(d.especie ? [op('−'), tok(d.especie, 'pagado en especie', 'in')] : []), op('='), tok(d.neto, d.especie ? 'NETO EN DINERO' : 'NETO A PAGAR', 'out'))
+      + (d.especie ? checks([['ok', 'El salario en especie (vivienda, comida) no es un descuento: es salario que ya recibió. Por eso se resta del pago en dinero, pero sí cuenta para seguridad social y prestaciones.']]) : ''),
     tryIt: 'Compara el neto con el salario pactado: con el mínimo el neto (' + money(P.SMMLV + P.AUX - 140200) + ') es mayor que el salario gracias al auxilio de transporte.',
     quiz: { q: '¿Cuál es el neto a pagar?', a: d => d.neto, exp: d => `${money(d.totalDev)} − ${money(d.totalDed)} = ${money(d.neto)}` },
     refs: ['cst149'],
   },
   { // 14
-    corto: 'Empresa', titulo: 'Lo que paga la empresa: aportes y parafiscales',
+    id: 'empresa', corto: 'Empresa', titulo: 'Lo que paga la empresa: aportes y parafiscales',
     lead: ['Además del salario, la empresa paga su parte de salud y pensión, la ARL completa y los parafiscales (Caja, ICBF, SENA).',
       'Si el trabajador gana menos de 10 SMMLV, la mayoría de empresas están exoneradas de salud 8,5 %, ICBF y SENA.'],
     controls: [{ k: 'arl', t: 'select', label: 'Clase de riesgo ARL', opts: [[0.00522, 'I · 0,522 % (oficina)'], [0.01044, 'II · 1,044 %'], [0.02436, 'III · 2,436 %'], [0.0435, 'IV · 4,350 %'], [0.0696, 'V · 6,960 % (alturas, minería)']] },
-      { k: 'exonerado', t: 'toggle', label: 'Empresa exonerada (art. 114-1 E.T.)' }],
-    calc: d => eq('Salud empresa', tok(d.ibc, 'IBC', 'out'), op('×'), tok(d.exon ? 0 : 0.085, d.exon ? 'exonerada' : '8,5 %', 'k', 'p'), op('='), tok(d.saludP, 'salud', 'out'))
-      + eq('Pensión empresa', tok(d.ibc, 'IBC', 'out'), op('×'), tok(0.12, '12 %', 'k', 'p'), op('='), tok(d.pensionP, 'pensión', 'out'))
-      + eq('ARL', tok(d.ibcARL, 'IBC días laborados', 'out'), op('×'), tok(+S.arl, 'tarifa', 'in', 'p'), op('='), tok(d.arl, 'ARL', 'out'))
-      + eq('Parafiscales', tok(d.basePara, 'base salarial', 'out'), op('×'), tok('4 % + ' + (d.exon ? '0 % + 0 %' : '3 % + 2 %'), 'Caja + ICBF + SENA', 'k', 't'), op('='), tok(d.parafiscales, 'parafiscales', 'out'))
-      + eq('Total aportes empresa', tok(d.aportes + d.parafiscales, 'seguridad social + parafiscales', 'out')),
+      { k: 'exonerado', t: 'toggle', label: 'Empresa exonerada (art. 114-1 E.T.)', when: () => S.empleador !== 'hogar' }, C.empleador, C.hogarVarios],
+    calc: d => (d.semanasMode
+      ? checks([['no', 'Salud empleador: no aplica con cotización por semanas (Decreto 2616).']])
+      : eq('Salud empleador', tok(d.ibc, 'IBC', 'out'), op('×'), tok(d.exon ? 0 : 0.085, d.exon ? 'exonerado' : '8,5 %', 'k', 'p'), op('='), tok(d.saludP, 'salud', 'out')))
+      + eq('Pensión empleador', tok(d.ibc, 'IBC', 'out'), op('×'), tok(0.12, '12 %', 'k', 'p'), op('='), tok(d.pensionP, 'pensión', 'out'))
+      + eq('ARL', tok(d.ibcARL, d.semanasMode ? '1 SMMLV (Decreto 2616)' : 'IBC días laborados', 'out'), op('×'), tok(+S.arl, 'tarifa', 'in', 'p'), op('='), tok(d.arl, 'ARL', 'out'))
+      + eq('Parafiscales', tok(d.basePara, d.semanasMode ? 'base por semanas' : 'base salarial', 'out'), op('×'), tok('4 % + ' + (d.exon || d.hogar ? '0 % + 0 %' : '3 % + 2 %'), 'Caja + ICBF + SENA', 'k', 't'), op('='), tok(d.parafiscales, 'parafiscales', 'out'))
+      + eq('Total aportes del empleador', tok(d.aportes + d.parafiscales, 'seguridad social + parafiscales', 'out'))
+      + (d.hogar ? checks([['ok', 'Hogar: solo aporta Caja de Compensación (4 %); no paga SENA ni ICBF.'], [d.exon ? 'ok' : 'bad', d.exon ? 'Con 2 o más trabajadores el hogar queda exonerado de salud 8,5 %.' : 'Con un solo trabajador el hogar SÍ paga salud 8,5 % (no aplica la exoneración).']]) : ''),
     tryIt: 'Desmarca "Empresa exonerada" y mira cuánto más cuesta el trabajador. Luego cambia el riesgo ARL a clase V.',
     quiz: { q: '¿Cuánto paga la empresa de pensión este mes?', a: d => d.pensionP, tol: 100, exp: d => `${money(d.ibc)} × 12 % = ${money(d.ibc * 0.12)} → ${money(d.pensionP)}` },
-    refs: ['ley100_204', 'ley100_20', 'et1141', 'arl', 'ley21_12'],
+    refs: ['ley100_204', 'ley100_20', 'et1141', 'arl', 'ley21_12', 'dec721'],
   },
   { // 15
-    corto: 'Prestaciones', titulo: 'Prestaciones sociales: el ahorro mensual de la empresa',
+    id: 'prest', corto: 'Prestaciones', titulo: 'Prestaciones sociales: el ahorro mensual de la empresa',
     lead: ['Prima, cesantías, intereses y vacaciones no se pagan cada mes, pero la empresa debe reservar ("provisionar") su valor mes a mes.',
       'Prima y cesantías: un salario por año cada una (8,33 % mensual), con auxilio incluido. Intereses: 12 % anual sobre cesantías. Vacaciones: 15 días por año (4,17 %), sin auxilio ni extras.'],
     controls: [C.salario],
@@ -410,12 +487,12 @@ const STEPS = [
       + eq('Prima de servicios', tok(d.basePrest, 'salario + extras + auxilio'), op('×'), tok(1 / 12, '30 días por año', 'k', 'p'), op('='), tok(d.prima, 'prima', 'out'))
       + eq('Vacaciones', tok(d.baseVac, 'salario sin auxilio ni extras'), op('×'), tok(15 / 360, '15 días por año', 'k', 'p'), op('='), tok(d.provVac, 'vacaciones', 'out'))
       + checks([['ok', 'Prima: mitad antes del 30 de junio y mitad antes del 20 de diciembre.'], ['ok', 'Cesantías: al fondo antes del 14 de febrero. Intereses: al trabajador en enero.'], ['ok', 'Para liquidar por fechas reales usa la pestaña "Prestaciones y liquidación".']]),
-    tryIt: 'Agrega horas extra en el paso 5: suben prima y cesantías, pero NO las vacaciones.',
+    tryIt: 'Agrega horas extra en el paso «Horas extra»: suben prima y cesantías, pero NO las vacaciones.',
     quiz: { q: '¿Cuánto debe provisionar la empresa este mes para la prima?', a: d => d.prima, exp: d => `${money(d.basePrest)} × 8,33 % = ${money(d.prima)}` },
     refs: ['cst249', 'ley52', 'cst306', 'cst186'],
   },
   { // 16
-    corto: 'Resumen', titulo: 'Resumen: el costo real de un trabajador',
+    id: 'resumen', corto: 'Resumen', titulo: 'Resumen: el costo real de un trabajador',
     lead: ['Ya construiste la nómina completa. Esta es la foto: lo que recibe el trabajador y lo que realmente le cuesta a la empresa.'],
     controls: [],
     calc: d => {
@@ -436,40 +513,45 @@ const STEPS = [
 // ---------- 5. Desprendible ----------
 const SLIP = [
   { g: 'Devengados' },
-  { l: d => `Salario (${d.diasLab} días)`, s: 2, v: d => d.salDias },
-  { l: () => 'Auxilio de transporte', s: 4, v: d => d.aux, show: d => d.tieneAux },
-  { l: () => 'Horas extras', s: 5, v: d => d.hExtras, show: d => d.hExtras > 0 },
-  { l: () => 'Recargos', s: 6, v: d => d.hRec, show: d => d.hRec > 0 },
-  { l: d => `Vacaciones (${d.diasVac} d)`, s: 7, v: d => d.vac, show: d => d.vac > 0 },
-  { l: d => `Incapacidad (${d.diasIncap} d)`, s: 7, v: d => d.incap, show: d => d.incap > 0 },
-  { l: () => 'Comisiones', s: 8, v: () => S.comisiones, show: () => S.comisiones > 0 },
-  { l: () => 'Bonificación no salarial', s: 8, v: () => S.noSalarial, show: () => S.noSalarial > 0 },
-  { l: () => 'Total devengado', s: 8, v: d => d.totalDev, cls: 'tot' },
+  { l: d => `Salario (${d.diasLab} días)`, s: 'dia', v: d => d.salDias },
+  { l: () => 'Descanso dominical proporcional', s: 'dia', v: d => d.dominical, show: d => d.dominical > 0 },
+  { l: () => 'Auxilio de transporte', s: 'aux', v: d => d.aux, show: d => d.tieneAux },
+  { l: () => 'Horas extras', s: 'extras', v: d => d.hExtras, show: d => d.hExtras > 0 },
+  { l: () => 'Recargos', s: 'recargos', v: d => d.hRec, show: d => d.hRec > 0 },
+  { l: d => `Vacaciones (${d.diasVac} d)`, s: 'novedades', v: d => d.vac, show: d => d.vac > 0 },
+  { l: d => `Incapacidad (${d.diasIncap} d)`, s: 'novedades', v: d => d.incap, show: d => d.incap > 0 },
+  { l: () => 'Comisiones', s: 'devengado', v: () => S.comisiones, show: () => S.comisiones > 0 },
+  { l: () => 'Bonificación no salarial', s: 'devengado', v: () => S.noSalarial, show: () => S.noSalarial > 0 },
+  { l: () => 'Total devengado', s: 'devengado', v: d => d.totalDev, cls: 'tot' },
   { g: 'Deducciones' },
-  { l: () => 'Salud 4 %', s: 10, v: d => d.salud },
-  { l: () => 'Pensión 4 %', s: 10, v: d => d.pension },
-  { l: d => `Fondo Solidaridad ${pctTxt(d.tFSP)}`, s: 11, v: d => d.fsp, show: d => d.fsp > 0 },
-  { l: () => 'Retención en la fuente', s: 12, v: d => d.rete, show: () => S.calcRete },
-  { l: () => 'Otros descuentos', s: 13, v: () => S.otrasDed, show: () => S.otrasDed > 0 },
-  { l: () => 'Total deducciones', s: 13, v: d => d.totalDed, cls: 'tot' },
-  { l: () => 'NETO A PAGAR', s: 13, v: d => d.neto, cls: 'tot big' },
-  { g: 'Lo que paga la empresa' },
-  { l: d => d.exon ? 'Salud 8,5 % (exonerada)' : 'Salud 8,5 %', s: 14, v: d => d.saludP },
-  { l: () => 'Pensión 12 %', s: 14, v: d => d.pensionP },
-  { l: () => 'ARL', s: 14, v: d => d.arl },
-  { l: () => 'Caja 4 %', s: 14, v: d => d.caja },
-  { l: () => 'ICBF + SENA', s: 14, v: d => d.icbf + d.sena },
-  { l: () => 'Prestaciones (provisión)', s: 15, v: d => d.provision },
-  { l: () => 'COSTO TOTAL EMPRESA', s: 15, v: d => d.costo, cls: 'tot big' },
+  { l: () => 'Salud 4 %', s: 'salud', v: d => d.salud, show: d => !d.semanasMode },
+  { l: () => 'Pensión 4 %', s: 'salud', v: d => d.pension },
+  { l: d => `Fondo Solidaridad ${pctTxt(d.tFSP)}`, s: 'fsp', v: d => d.fsp, show: d => d.fsp > 0 },
+  { l: () => 'Retención en la fuente', s: 'rete', v: d => d.rete, show: () => S.calcRete },
+  { l: () => 'Otros descuentos', s: 'neto', v: () => S.otrasDed, show: () => S.otrasDed > 0 },
+  { l: () => 'Total deducciones', s: 'neto', v: d => d.totalDed, cls: 'tot' },
+  { l: () => '(−) Pagado en especie', s: 'neto', v: d => d.especie, show: d => d.especie > 0 },
+  { l: d => d.especie ? 'NETO EN DINERO' : 'NETO A PAGAR', s: 'neto', v: d => d.neto, cls: 'tot big' },
+  { g: 'Lo que paga el empleador' },
+  { l: d => d.exon ? 'Salud 8,5 % (exonerada)' : 'Salud 8,5 %', s: 'empresa', v: d => d.saludP, show: d => !d.semanasMode },
+  { l: () => 'Pensión 12 %', s: 'empresa', v: d => d.pensionP },
+  { l: () => 'ARL', s: 'empresa', v: d => d.arl },
+  { l: () => 'Caja 4 %', s: 'empresa', v: d => d.caja },
+  { l: () => 'ICBF + SENA', s: 'empresa', v: d => d.icbf + d.sena, show: d => !d.hogar },
+  { l: () => 'Prestaciones (provisión)', s: 'prest', v: d => d.provision },
+  { l: () => 'COSTO TOTAL EMPLEADOR', s: 'prest', v: d => d.costo, cls: 'tot big' },
 ];
 function renderSlip(d) {
-  const tipo = S.tipoSalario === 'integral' ? 'Salario integral' : ({ completo: 'Tiempo completo', medio: 'Medio tiempo', otra: `${S.horasSemana} h/semana` }[S.jornadaTipo]);
-  let h = `<h2><span>Desprendible de nómina</span><span class="hint">${esc(MESES[S.mes - 1])} ${P.anio}</span></h2><p class="who">${esc(tipo)} · salario ${money(S.salario)}</p>`;
+  const tipo = S.tipoSalario === 'integral' && S.jornadaTipo !== 'dias' ? 'Salario integral' : ({ completo: 'Tiempo completo', medio: 'Medio tiempo', otra: `${S.horasSemana} h/semana`, dias: `Por días · ${S.diasTrab} días` }[S.jornadaTipo]);
+  const quien = S.empleador === 'hogar' ? ' · servicio doméstico' : '';
+  const pago = S.jornadaTipo === 'dias' ? `jornal ${money(S.jornal)}` : `salario ${money(S.salario)}`;
+  let h = `<h2><span>Desprendible de nómina</span><span class="hint">${esc(MESES[S.mes - 1])} ${P.anio}</span></h2><p class="who">${esc(tipo + quien)} · ${pago}</p>`;
   for (const ln of SLIP) {
     if (ln.g) { h += `<h4>${esc(ln.g)}</h4>`; continue; }
     if (ln.show && !ln.show(d)) continue;
-    const st = ln.s > cur ? 'pend' : ln.s === cur ? 'now' : '';
-    h += `<div class="ln ${ln.cls || ''} ${st}"><span>${esc(ln.l(d))}</span><span>${ln.s > cur ? '· · ·' : money(ln.v(d))}</span></div>`;
+    const si = STEPS.findIndex(s => s.id === ln.s);
+    const st = si > cur ? 'pend' : si === cur ? 'now' : '';
+    h += `<div class="ln ${ln.cls || ''} ${st}"><span>${esc(ln.l(d))}</span><span>${si > cur ? '· · ·' : money(ln.v(d))}</span></div>`;
   }
   $('#sbSlip').innerHTML = h;
 }

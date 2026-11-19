@@ -101,39 +101,55 @@ function tasaFSP(ibcMensual) {
 function calcNomina(i) {
   const warn = [];
   const R = i.recargoDom;
-  const integral = i.tipoSalario === 'integral';
-  const horasSemana = i.jornadaTipo === 'completo' ? i.jornadaMax : i.jornadaTipo === 'medio' ? i.jornadaMax / 2 : Math.min(i.horasSemana || 1, i.jornadaMax);
+  const porDias = i.jornadaTipo === 'dias';          // trabajo por días (ej. servicio doméstico por días)
+  const hogar = i.empleador === 'hogar';             // empleador persona natural: servicio doméstico
+  const integral = i.tipoSalario === 'integral' && !porDias;
+  const horasSemana = (i.jornadaTipo === 'completo' || porDias) ? i.jornadaMax : i.jornadaTipo === 'medio' ? i.jornadaMax / 2 : Math.min(i.horasSemana || 1, i.jornadaMax);
   const fraccion = horasSemana / i.jornadaMax;
   const horasMes = horasSemana / 6 * 30;
-  const salario = i.salario;
-  const diasPeriodo = Math.min(Math.max(Math.round(i.diasPeriodo) || 30, 1), 30);
-  const diasVac = Math.min(Math.round(i.diasVac), diasPeriodo);
-  const diasIncap = Math.min(Math.round(i.diasIncap), diasPeriodo - diasVac);
-  const diasLab = diasPeriodo - diasVac - diasIncap;
+  const salario = porDias ? (i.jornal || 0) * 30 : i.salario;   // por días: equivalente mensual del jornal
+  const diasPeriodo = porDias ? 30 : Math.min(Math.max(Math.round(i.diasPeriodo) || 30, 1), 30);
+  const diasVac = porDias ? 0 : Math.min(Math.round(i.diasVac), diasPeriodo);
+  const diasIncap = porDias ? 0 : Math.min(Math.round(i.diasIncap), diasPeriodo - diasVac);
+  const diasLab = porDias ? Math.min(Math.max(Math.round(i.diasTrab) || 0, 0), 30) : diasPeriodo - diasVac - diasIncap;
   const valorDia = salario / 30;
   const valorHora = horasMes ? salario / horasMes : 0;
   const minimoProp = P.SMMLV * fraccion;
+  const especie = (porDias || integral) ? 0 : Math.min(i.especie || 0, salario);
 
   // ---- Validaciones didácticas ----
-  if (integral) {
+  if (porDias) {
+    if (i.tipoSalario === 'integral') warn.push(['info', 'El salario integral no aplica al trabajo por días; se calculó como salario ordinario.']);
+    if ((i.jornal || 0) + 0.5 < P.SMMLV / 30) warn.push(['danger', `El jornal (valor del día) mínimo 2026 es ${money(P.SMMLV / 30)}: SMMLV ÷ 30.`]);
+    if (diasLab > 26) warn.push(['info', 'Con más de 26 días al mes ya es tiempo completo: usa la jornada "Tiempo completo".']);
+  } else if (integral) {
     if (salario < 13 * P.SMMLV) warn.push(['danger', `El salario integral debe ser mínimo 13 SMMLV (${money(13 * P.SMMLV)}): 10 SMMLV de salario + 30 % de factor prestacional.`]);
     if (i.jornadaTipo !== 'completo') warn.push(['warn', 'El salario integral normalmente se pacta para jornada completa.']);
   } else if (salario + 1 < minimoProp) {
     warn.push(['danger', `Este salario está por debajo del mínimo ${fraccion < 1 ? 'proporcional ' : ''}legal: ${money(minimoProp)} para ${n(horasSemana)} h/semana.`]);
   }
   if (diasVac + diasIncap > diasPeriodo) warn.push(['warn', 'Vacaciones + incapacidad no pueden superar los días del periodo; se ajustaron.']);
+  if (especie) {
+    const lim = salario <= P.SMMLV + 1 ? 0.3 : 0.5;
+    if (especie > lim * salario + 1) warn.push(['danger', `El salario en especie no puede pasar del ${lim * 100} % del salario (art. 129 CST): máximo ${money(lim * salario)}.`]);
+  }
+  if (!integral && salario <= 2 * P.SMMLV) warn.push(['info', 'Dotación: como gana hasta 2 SMMLV, si lleva más de 3 meses tiene derecho a un par de zapatos y un vestido de labor cada 4 meses, gratis (art. 230 CST). Se entrega en especie, no en dinero.']);
+  if (hogar && !porDias) warn.push(['info', 'Servicio doméstico: el contrato debe ser escrito y registrarse en PILA (Ley 2466 de 2025, art. 33). Tiene derecho a prima, cesantías, intereses, vacaciones y dotación como cualquier trabajador.']);
 
   const steps = [];
 
   // ---- PASO 1: valores base ----
   steps.push({
     titulo: 'Valor del día y de la hora',
-    porque: 'Todo parte del salario. En Colombia el mes se liquida como de 30 días, y la hora se obtiene dividiendo por las horas que el trabajador debe laborar en el mes: (horas semanales ÷ 6 días) × 30.',
+    porque: porDias
+      ? 'En el trabajo por días se pacta un valor por día (jornal). No puede ser menor al salario mínimo diario (SMMLV ÷ 30). Para comparar, su equivalente mensual es jornal × 30.'
+      : 'Todo parte del salario. En Colombia el mes se liquida como de 30 días, y la hora se obtiene dividiendo por las horas que el trabajador debe laborar en el mes: (horas semanales ÷ 6 días) × 30.',
     filas: [
-      { c: 'Salario mensual pactado', v: salario },
-      { c: 'Valor día', f: `${money(salario)} ÷ 30`, v: valorDia },
+      ...(porDias
+        ? [{ c: 'Valor del día pactado (jornal)', v: valorDia, tip: `Mínimo legal: ${money(P.SMMLV / 30)} por día.` }, { c: 'Equivalente mensual', f: `${money(valorDia)} × 30`, v: salario }]
+        : [{ c: 'Salario mensual pactado', v: salario }, { c: 'Valor día', f: `${money(salario)} ÷ 30`, v: valorDia }]),
       { c: 'Horas al mes', f: `(${n(horasSemana)} h ÷ 6) × 30 = ${n(horasMes)} h`, vtxt: `${n(horasMes)} h`,
-        tip: i.jornadaTipo === 'completo' ? `Con jornada de ${i.jornadaMax} h la empresa divide por ${n(horasMes)}. Algunos usan semanas (${i.jornadaMax} × 52 ÷ 12 = ${n(i.jornadaMax * 52 / 12, 1)} h); aquí usamos el método de 30 días.` : `Medio tiempo / parcial: ${n(horasSemana)} de ${i.jornadaMax} horas = ${pctTxt(fraccion)} de la jornada.` },
+        tip: (i.jornadaTipo === 'completo' || porDias) ? `Con jornada de ${i.jornadaMax} h la empresa divide por ${n(horasMes)}. Algunos usan semanas (${i.jornadaMax} × 52 ÷ 12 = ${n(i.jornadaMax * 52 / 12, 1)} h); aquí usamos el método de 30 días.` : `Medio tiempo / parcial: ${n(horasSemana)} de ${i.jornadaMax} horas = ${pctTxt(fraccion)} de la jornada.` },
       { c: 'Valor hora ordinaria', f: `${money(salario)} ÷ ${n(horasMes)} h`, v: valorHora },
     ],
   });
@@ -141,7 +157,16 @@ function calcNomina(i) {
   // ---- PASO 2: devengados ----
   const dev = [];
   const salDias = valorDia * diasLab;
-  dev.push({ c: `Salario por ${diasLab} días laborados`, f: `${money(valorDia)} × ${diasLab}`, v: salDias });
+  dev.push({ c: `Salario por ${diasLab} días ${porDias ? 'trabajados' : 'laborados'}`, f: `${money(valorDia)} × ${diasLab}`, v: salDias,
+    tip: especie ? `Incluye ${money(especie)} de salario en especie (alimentación/vivienda) que no se paga en dinero.` : undefined });
+
+  let dominical = 0;
+  if (porDias) {
+    const dd = Math.max(0, Math.min(diasLab / 6, 30 - diasLab));
+    dominical = valorDia * dd;
+    dev.push({ c: 'Descanso dominical proporcional', f: `${money(valorDia)} × (${diasLab} días ÷ 6) = ${money(valorDia)} × ${n(dd)}`, v: dominical,
+      tip: 'Quien no trabaja todos los días de la semana tiene derecho al domingo pagado en proporción a lo que trabajó (art. 173 num. 5 CST): un día de descanso pagado por cada 6 trabajados.' });
+  }
 
   let vac = 0;
   if (diasVac) {
@@ -179,7 +204,7 @@ function calcNomina(i) {
   let aux = 0;
   const tieneAux = !integral && salario <= 2 * P.SMMLV;
   if (tieneAux) {
-    const factorAux = (i.jornadaTipo !== 'completo' && !i.auxCompleto) ? fraccion : 1;
+    const factorAux = (i.jornadaTipo !== 'completo' && !porDias && !i.auxCompleto) ? fraccion : 1;
     aux = P.AUX / 30 * diasLab * factorAux;
     dev.push({ c: 'Auxilio de transporte', f: `${money(P.AUX)} ÷ 30 × ${diasLab} días${factorAux < 1 ? ' × ' + pctTxt(factorAux) : ''}`, v: aux,
       tip: `Lo recibe quien gana hasta 2 SMMLV (${money(2 * P.SMMLV)}). No se paga en días de vacaciones ni incapacidad. NO es base de seguridad social ni de vacaciones, pero SÍ de prima y cesantías.${i.jornadaTipo !== 'completo' ? ' En medio tiempo el Ministerio de Trabajo indica pagarlo completo si el trabajador se desplaza todos los días.' : ''}` });
@@ -189,7 +214,7 @@ function calcNomina(i) {
 
   if (i.noSalarial) dev.push({ c: 'Bonificación no salarial', v: i.noSalarial, tip: 'Pactada expresamente como no salarial (art. 128 CST).' });
 
-  const baseSalarial = salDias + vac + incap + extras + i.comisiones;
+  const baseSalarial = salDias + dominical + vac + incap + extras + i.comisiones;
   const totalDev = baseSalarial + aux + i.noSalarial;
   dev.push({ c: 'Total devengado', v: totalDev, total: true });
 
@@ -210,8 +235,16 @@ function calcNomina(i) {
       tip: exceso40 ? 'Los pagos no salariales superan el 40 % de la remuneración total: el exceso se suma al IBC.' : 'Los pagos no salariales no superan el 40 %: no suman al IBC.' });
   }
   let ibc = baseIBC + exceso40;
-  const minIBC = P.SMMLV / 30 * diasPeriodo, maxIBC = 25 * P.SMMLV;
-  if (ibc < minIBC) {
+  // Decreto 2616 de 2013: quien trabaja por días y gana menos de 1 SMMLV en el mes cotiza por semanas
+  const semanasMode = porDias && !!i.cotizaSemanas && baseSalarial < P.SMMLV;
+  if (porDias && i.cotizaSemanas && !semanasMode) warn.push(['info', 'Este mes gana 1 SMMLV o más: no aplica la cotización por semanas del Decreto 2616; cotiza por el mes completo.']);
+  const semanas = semanasMode ? (diasLab <= 7 ? 1 : diasLab <= 14 ? 2 : diasLab <= 21 ? 3 : 4) : 0;
+  const minIBC = semanasMode ? P.SMMLV / 4 * semanas : P.SMMLV / 30 * diasPeriodo, maxIBC = 25 * P.SMMLV;
+  if (semanasMode) {
+    ibcF.push({ c: 'Cotización por semanas (Decreto 2616 de 2013)', f: `${diasLab} días → ${semanas} semana(s) × ¼ SMMLV (${money(P.SMMLV / 4)})`, v: minIBC,
+      tip: '1–7 días = 1 semana · 8–14 = 2 · 15–21 = 3 · más de 21 = 4 (un mes completo). Solo cubre pensión, ARL y caja de compensación.' });
+    if (ibc < minIBC) ibc = minIBC;
+  } else if (ibc < minIBC) {
     ibcF.push({ c: 'Ajuste al mínimo', f: `IBC no puede ser menor a 1 SMMLV (proporcional a ${diasPeriodo} días)`, v: minIBC,
       tip: i.jornadaTipo !== 'completo' ? 'En medio tiempo, aunque el salario sea menor, se cotiza sobre al menos 1 SMMLV. (Solo quien trabaja por días puede cotizar por semanas, Decreto 2616 de 2013.)' : undefined });
     ibc = minIBC;
@@ -223,12 +256,14 @@ function calcNomina(i) {
 
   // ---- PASO 4: deducciones ----
   const ded = [];
-  const salud = ceil100(ibc * P.saludEmp);
+  const salud = semanasMode ? 0 : ceil100(ibc * P.saludEmp);
   const pension = ceil100(ibc * P.pensionEmp);
   const ibcMensual = ibc * 30 / diasPeriodo;
   const tFSP = tasaFSP(ibcMensual);
   const fsp = tFSP ? ceil100(ibc * tFSP) : 0;
-  ded.push({ c: 'Salud (4 %)', f: `${money(ibc)} × 4 %`, v: salud, tip: 'Las cotizaciones se redondean al múltiplo de $100 superior (PILA).' });
+  ded.push(semanasMode
+    ? { c: 'Salud', vtxt: 'No aplica', tip: 'La cotización por semanas (Decreto 2616) no incluye salud: el trabajador debe estar en el régimen subsidiado o como beneficiario. La Ley 2466 (art. 33) permite a las trabajadoras domésticas mantener el subsidiado.' }
+    : { c: 'Salud (4 %)', f: `${money(ibc)} × 4 %`, v: salud, tip: 'Las cotizaciones se redondean al múltiplo de $100 superior (PILA).' });
   ded.push({ c: 'Pensión (4 %)', f: `${money(ibc)} × 4 %`, v: pension });
   ded.push(tFSP
     ? { c: `Fondo de Solidaridad Pensional (${pctTxt(tFSP)})`, f: `${money(ibc)} × ${pctTxt(tFSP)}  · IBC = ${n(ibcMensual / P.SMMLV, 1)} SMMLV`, v: fsp, tip: 'Desde 4 SMMLV se aporta 1 % adicional; desde 16 SMMLV sube gradualmente hasta 2 %.' }
@@ -277,28 +312,32 @@ function calcNomina(i) {
   if (reteFilas) steps.push({ titulo: 'Retención en la fuente (procedimiento 1)', porque: 'Se "depura" el ingreso: se restan aportes, deducciones y la renta exenta del 25 %. Lo que queda se pasa a UVT y se busca en la tabla del art. 383 del Estatuto Tributario.', filas: reteFilas });
 
   // ---- PASO 5: neto ----
-  const neto = totalDev - totalDed;
-  steps.push({ titulo: 'Neto a pagar', porque: 'Lo que efectivamente llega a la cuenta del trabajador.', filas: [
+  const neto = totalDev - totalDed - especie;
+  steps.push({ titulo: 'Neto a pagar', porque: especie ? 'Lo que efectivamente recibe en dinero: se resta la parte del salario que ya recibió en especie (alimentación, vivienda).' : 'Lo que efectivamente llega a la cuenta del trabajador.', filas: [
     { c: 'Total devengado', v: totalDev }, { c: '(−) Total deducciones', v: -totalDed, neg: true },
-    { c: 'NETO A PAGAR', v: neto, total: true },
+    ...(especie ? [{ c: '(−) Parte del salario pagada en especie', v: -especie, neg: true, tip: 'No es un descuento: es salario que ya recibió como alimentación o vivienda (art. 129 CST).' }] : []),
+    { c: especie ? 'NETO A PAGAR EN DINERO' : 'NETO A PAGAR', v: neto, total: true },
   ] });
 
   // ---- PASO 6: costo empleador ----
   const salarioBajo10 = salario < 10 * P.SMMLV && !integral;
-  const exon = i.exonerado && salarioBajo10;
-  const ibcARL = Math.round(ibc * diasLab / diasPeriodo);
-  const basePara = Math.round(Math.max(0, (integral ? (baseSalarial - incap) * 0.7 : baseSalarial - incap) + exceso40));
-  const saludP = exon ? 0 : ceil100(ibc * P.saludPatrono);
+  // Hogar: la exoneración del art. 114-1 solo aplica a personas naturales con 2 o más trabajadores
+  const exon = hogar ? (!!i.hogarVarios && salarioBajo10) : (i.exonerado && salarioBajo10);
+  // ARL: por días laborados; con Decreto 2616 la base de ARL es 1 SMMLV completo (art. 5)
+  const ibcARL = semanasMode ? P.SMMLV : porDias ? ibc : Math.round(ibc * diasLab / diasPeriodo);
+  const basePara = semanasMode ? ibc : Math.round(Math.max(0, (integral ? (baseSalarial - incap) * 0.7 : baseSalarial - incap) + exceso40));
+  const saludP = (exon || semanasMode) ? 0 : ceil100(ibc * P.saludPatrono);
   const pensionP = ceil100(ibc * P.pensionPatrono);
   const arl = diasLab ? ceil100(ibcARL * i.arl) : 0;
   const caja = ceil100(basePara * P.caja);
-  const icbf = exon ? 0 : ceil100(basePara * P.icbf);
-  const sena = exon ? 0 : ceil100(basePara * P.sena);
+  const sinIcbfSena = exon || hogar;   // los hogares solo aportan a Caja de Compensación
+  const icbf = sinIcbfSena ? 0 : ceil100(basePara * P.icbf);
+  const sena = sinIcbfSena ? 0 : ceil100(basePara * P.sena);
   const aportes = saludP + pensionP + arl;
   const parafiscales = caja + icbf + sena;
 
   const basePrest = baseSalarial + aux;
-  const baseVac = salDias + vac + incap + i.comisiones; // sin extras ni auxilio
+  const baseVac = salDias + dominical + vac + incap + i.comisiones; // sin extras ni auxilio
   const ces = integral ? 0 : basePrest * P.cesantias;
   const intC = integral ? 0 : ces * P.intCes;
   const prima = integral ? 0 : basePrest * P.prima;
@@ -307,12 +346,16 @@ function calcNomina(i) {
   const costo = totalDev + aportes + parafiscales + provision;
 
   const emp = [
-    { c: exon ? 'Salud empleador · exonerado' : 'Salud empleador (8,5 %)', f: exon ? 'Art. 114-1 E.T.: trabajador gana < 10 SMMLV' : `${money(ibc)} × 8,5 %`, v: saludP },
+    semanasMode
+      ? { c: 'Salud empleador · no aplica', f: 'La cotización por semanas (Decreto 2616) no incluye salud', v: 0 }
+      : { c: exon ? 'Salud empleador · exonerado' : 'Salud empleador (8,5 %)', f: exon ? `Art. 114-1 E.T.: ${hogar ? 'hogar con 2 o más trabajadores y ' : ''}trabajador gana < 10 SMMLV` : `${money(ibc)} × 8,5 %`, v: saludP,
+        tip: hogar && !exon ? 'Un hogar con un solo trabajador no está exonerado: paga el 8,5 % de salud.' : undefined },
     { c: 'Pensión empleador (12 %)', f: `${money(ibc)} × 12 %`, v: pensionP },
-    { c: `ARL clase ${ARL_CLASE[String(i.arl)] || ''} (${pctTxt(i.arl)})`, f: `${money(ibcARL)} × ${pctTxt(i.arl)}`, v: arl, tip: diasVac || diasIncap ? 'La ARL solo se paga por los días efectivamente laborados.' : 'La paga 100 % el empleador.' },
-    { c: 'Caja de compensación (4 %)', f: `${money(basePara)} × 4 %`, v: caja },
-    { c: exon ? 'ICBF · exonerado' : 'ICBF (3 %)', f: exon ? '' : `${money(basePara)} × 3 %`, v: icbf },
-    { c: exon ? 'SENA · exonerado' : 'SENA (2 %)', f: exon ? '' : `${money(basePara)} × 2 %`, v: sena },
+    { c: `ARL clase ${ARL_CLASE[String(i.arl)] || ''} (${pctTxt(i.arl)})`, f: `${money(ibcARL)} × ${pctTxt(i.arl)}`, v: arl,
+      tip: semanasMode ? 'Con cotización por semanas, la ARL siempre se calcula sobre 1 SMMLV completo (Decreto 2616, art. 5).' : diasVac || diasIncap ? 'La ARL solo se paga por los días efectivamente laborados.' : 'La paga 100 % el empleador.' },
+    { c: 'Caja de compensación (4 %)', f: `${money(basePara)} × 4 %`, v: caja, tip: hogar ? 'Los hogares también deben afiliar a su trabajador(a) a una caja (Decreto 721 de 2013).' : undefined },
+    { c: hogar ? 'ICBF · no aplica a hogares' : exon ? 'ICBF · exonerado' : 'ICBF (3 %)', f: sinIcbfSena ? '' : `${money(basePara)} × 3 %`, v: icbf },
+    { c: hogar ? 'SENA · no aplica a hogares' : exon ? 'SENA · exonerado' : 'SENA (2 %)', f: sinIcbfSena ? '' : `${money(basePara)} × 2 %`, v: sena },
     { c: 'Subtotal seguridad social y parafiscales', v: aportes + parafiscales, sub: true },
   ];
   if (!integral) {
@@ -329,7 +372,7 @@ function calcNomina(i) {
   steps.push({ titulo: 'Costo para el empleador', porque: 'Además del salario, la empresa paga su parte de seguridad social, los parafiscales y debe ir ahorrando ("provisionando") cada mes las prestaciones sociales que pagará después.', filas: emp });
 
   // "d" expone todos los valores intermedios (lo usa el modo sandbox)
-  const d = { R, integral, horasSemana, fraccion, horasMes, salario, valorDia, valorHora, minimoProp, diasPeriodo, diasVac, diasIncap, diasLab,
+  const d = { R, porDias, hogar, dominical, especie, semanasMode, semanas, jornal: porDias ? valorDia : 0, integral, horasSemana, fraccion, horasMes, salario, valorDia, valorHora, minimoProp, diasPeriodo, diasVac, diasIncap, diasLab,
     salDias, vac, incap, extras, aux, tieneAux, baseSalarial, baseIBC, totalRem, exceso40, minIBC, maxIBC, ibc, ibcMensual,
     salud, pension, tFSP, fsp, rete, reteD, totalDev, totalDed, neto, exon, saludP, pensionP, arl, ibcARL, basePara, caja, icbf, sena,
     aportes, parafiscales, basePrest, baseVac, ces, intC, prima, provVac, provision, costo };
@@ -486,17 +529,33 @@ function initNomina() {
   $('#hxList').innerHTML = factoresHoras(0.9).map(h =>
     `<div class="hx"><label class="n" for="h_${h.id}">${h.nombre}<small id="hs_${h.id}"></small></label><input type="number" id="h_${h.id}" min="0" step="0.5" value="0"></div>`).join('');
 
-  const presets = {
-    'Mínimo tiempo completo': { tipoSalario: 'ordinario', jornadaTipo: 'completo', salario: P.SMMLV },
-    'Medio tiempo': { tipoSalario: 'ordinario', jornadaTipo: 'medio', salario: Math.round(P.SMMLV / 2) },
-    'Con horas extras y domingo': { tipoSalario: 'ordinario', jornadaTipo: 'completo', salario: 2200000, h_hed: 10, h_hen: 4, h_rn: 8, h_rdf: 8 },
-    'Vacaciones + incapacidad': { tipoSalario: 'ordinario', jornadaTipo: 'completo', salario: 3000000, diasVac: 10, diasIncap: 3 },
-    'Salario alto con retención': { tipoSalario: 'ordinario', jornadaTipo: 'completo', salario: 9500000, dependientes: true, prepagada: 450000 },
-    'Salario integral': { tipoSalario: 'integral', jornadaTipo: 'completo', salario: 25000000 },
+  const grupos = {
+    'Básicos': {
+      'Mínimo tiempo completo': { salario: P.SMMLV },
+      'Medio tiempo': { jornadaTipo: 'medio', salario: Math.round(P.SMMLV / 2) },
+      'Vacaciones + incapacidad': { salario: 3000000, diasVac: 10, diasIncap: 3 },
+      'Salario alto con retención': { salario: 9500000, dependientes: true, prepagada: 450000 },
+      'Salario integral': { tipoSalario: 'integral', salario: 25000000 },
+    },
+    'Aseo y servicio doméstico': {
+      'Aseo en empresa': { salario: P.SMMLV, arl: '0.01044' },
+      'Aseo medio tiempo': { jornadaTipo: 'medio', salario: Math.round(P.SMMLV / 2), arl: '0.01044' },
+      'Doméstica externa (tiempo completo)': { empleador: 'hogar', salario: P.SMMLV },
+      'Doméstica interna (con vivienda y comida)': { empleador: 'hogar', salario: P.SMMLV, especie: 350000 },
+      'Doméstica por días (2 días/semana)': { empleador: 'hogar', jornadaTipo: 'dias', jornal: 80000, diasTrab: 8, cotizaSemanas: true },
+    },
+    'Otros oficios': {
+      'Mesero con extras y domingo': { salario: 2200000, h_hed: 10, h_hen: 4, h_rn: 8, h_rdf: 8 },
+      'Vigilante (turnos de noche)': { salario: P.SMMLV, arl: '0.0435', h_hen: 12, h_hendf: 4, h_rn: 70, h_rdf: 16, h_rndf: 8 },
+      'Vendedor con comisiones': { salario: 2400000, comisiones: 900000, noSalarial: 300000 },
+    },
   };
-  const base = { diasPeriodo: 30, diasVac: 0, diasIncap: 0, comisiones: 0, noSalarial: 0, otrasDed: 0, prepagada: 0, vivienda: 0, dependientes: false, calcRete: true, auxCompleto: true, horasSemana: 24 };
+  const presets = Object.assign({}, ...Object.values(grupos));
+  const base = { tipoSalario: 'ordinario', jornadaTipo: 'completo', diasPeriodo: 30, diasVac: 0, diasIncap: 0, comisiones: 0, noSalarial: 0, otrasDed: 0, prepagada: 0, vivienda: 0,
+    dependientes: false, calcRete: true, auxCompleto: true, horasSemana: 24, empleador: 'empresa', hogarVarios: false, exonerado: true,
+    jornal: 80000, diasTrab: 8, cotizaSemanas: true, especie: 0, arl: '0.00522' };
   HX_IDS.forEach(id => base['h_' + id] = 0);
-  $('#presets').innerHTML = Object.keys(presets).map(k => `<button type="button" class="btn" data-p="${esc(k)}">${esc(k)}</button>`).join('');
+  $('#presets').innerHTML = Object.entries(grupos).map(([g, ps]) => `<div class="pgroup"><div class="lbl">${esc(g)}</div><div class="presets">${Object.keys(ps).map(k => `<button type="button" class="btn" data-p="${esc(k)}">${esc(k)}</button>`).join('')}</div></div>`).join('');
   $('#presets').addEventListener('click', e => {
     const b = e.target.closest('button[data-p]'); if (!b) return;
     const p = { ...base, ...presets[b.dataset.p] };
@@ -521,14 +580,25 @@ function leerNomina() {
     comisiones: numVal('comisiones'), noSalarial: numVal('noSalarial'), otrasDed: numVal('otrasDed'),
     calcRete: chk('calcRete'), dependientes: chk('dependientes'), prepagada: numVal('prepagada'), vivienda: numVal('vivienda'),
     arl: parseFloat($('#arl').value), exonerado: chk('exonerado'),
+    empleador: $('#empleador').value, hogarVarios: chk('hogarVarios'),
+    jornal: numVal('jornal'), diasTrab: numVal('diasTrab'), cotizaSemanas: chk('cotizaSemanas'), especie: numVal('especie'),
   };
 }
 
 function updateNomina() {
   const i = leerNomina();
-  const integral = i.tipoSalario === 'integral';
+  const porDias = i.jornadaTipo === 'dias';
+  const integral = i.tipoSalario === 'integral' && !porDias;
+  const hogar = i.empleador === 'hogar';
   $('#boxHoras').hidden = i.jornadaTipo !== 'otra';
-  $('#boxAux').hidden = i.jornadaTipo === 'completo' || integral;
+  $('#boxDias').hidden = !porDias;
+  $('#boxSalario').hidden = porDias;
+  $('#boxPeriodo').hidden = porDias;
+  $('#cardNovedades').hidden = porDias;
+  $('#boxEspecie').hidden = porDias || integral;
+  $('#boxExon').hidden = hogar;
+  $('#boxHogar').hidden = !hogar;
+  $('#boxAux').hidden = i.jornadaTipo === 'completo' || porDias || integral;
   $('#hxList').querySelectorAll('input').forEach(el => el.disabled = integral);
 
   const R = i.recargoDom;
@@ -538,6 +608,7 @@ function updateNomina() {
   factoresHoras(R).forEach(h => { $('#hs_' + h.id).textContent = `×${n(h.f, 3)} → ${money(r.valorHora * h.f)} por hora`; });
 
   const frac = (i.jornadaTipo === 'completo' ? i.jornadaMax : i.jornadaTipo === 'medio' ? i.jornadaMax / 2 : Math.min(i.horasSemana || 1, i.jornadaMax)) / i.jornadaMax;
+  $('#jornalHint').textContent = `Jornal mínimo 2026: ${money(P.SMMLV / 30)} (SMMLV ÷ 30). Hoy: ${money(i.jornal)}`;
   $('#salarioHint').textContent = integral
     ? `Mínimo integral 2026: ${money(13 * P.SMMLV)} (13 SMMLV).`
     : `Mínimo ${frac < 1 ? 'proporcional ' : ''}2026: ${money(P.SMMLV * frac)} · Hoy: ${money(i.salario)}`;
