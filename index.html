@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nómina Colombia 2026</title>
+<meta name="description" content="Calculadora didáctica de nómina para Colombia 2026: salario, horas extras, recargos, medio tiempo, vacaciones, prestaciones, seguridad social y costo del empleador, explicado paso a paso.">
+<style>
+:root{
+  --bg:#f6f7f9; --surface:#ffffff; --surface-2:#f0f2f5; --text:#16191f; --muted:#5b6472;
+  --border:#dde1e7; --accent:#0f6e5c; --accent-2:#e6f3ef; --accent-text:#0b5a4b;
+  --warn:#8a5a00; --warn-bg:#fff6e0; --danger:#a32020; --danger-bg:#fdecec; --info-bg:#eef4ff; --info:#1f4fa3;
+  --c-neto:#0f6e5c; --c-ded:#c0612b; --c-apo:#3a63b8; --c-prov:#8a5cc7;
+  --radius:12px; --shadow:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.08);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1216; --surface:#171b21; --surface-2:#1e232b; --text:#e8ebf0; --muted:#9aa4b2;
+    --border:#2b313b; --accent:#3cc5a5; --accent-2:#163a33; --accent-text:#7de3c9;
+    --warn:#f2c46b; --warn-bg:#3a2e12; --danger:#ff8a8a; --danger-bg:#3d1b1b; --info-bg:#172540; --info:#9cbcff;
+    --c-neto:#3cc5a5; --c-ded:#f0935c; --c-apo:#7d9df0; --c-prov:#b996f0;
+    --shadow:none; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1216; --surface:#171b21; --surface-2:#1e232b; --text:#e8ebf0; --muted:#9aa4b2;
+  --border:#2b313b; --accent:#3cc5a5; --accent-2:#163a33; --accent-text:#7de3c9;
+  --warn:#f2c46b; --warn-bg:#3a2e12; --danger:#ff8a8a; --danger-bg:#3d1b1b; --info-bg:#172540; --info:#9cbcff;
+  --c-neto:#3cc5a5; --c-ded:#f0935c; --c-apo:#7d9df0; --c-prov:#b996f0;
+  --shadow:none; color-scheme: dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--accent-text)}
+.wrap{max-width:1240px;margin:0 auto;padding:0 16px}
+header.top{padding:28px 0 8px}
+header.top h1{font-size:clamp(22px,3.2vw,30px);margin:0 0 4px;letter-spacing:-.01em}
+header.top p{margin:0;color:var(--muted);max-width:760px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 4px}
+.chip{background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:5px 12px;font-size:13px;color:var(--muted)}
+.chip b{color:var(--text);font-weight:600}
+nav.tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin:16px 0 20px;overflow-x:auto;scrollbar-width:none}
+nav.tabs button{appearance:none;border:0;background:none;color:var(--muted);font:inherit;font-weight:600;padding:10px 14px;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap}
+nav.tabs button[aria-selected="true"]{color:var(--accent-text);border-bottom-color:var(--accent)}
+nav.tabs button:hover{color:var(--text)}
+.panel{display:none}
+.panel.active{display:block}
+.grid{display:grid;grid-template-columns:minmax(300px,400px) 1fr;gap:20px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
+.card + .card{margin-top:14px}
+.card h2{font-size:16px;margin:0 0 10px}
+.card h3{font-size:14px;margin:14px 0 8px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.form .card{padding:14px 16px}
+fieldset{border:0;margin:0;padding:0}
+legend{font-weight:700;font-size:14px;margin-bottom:8px;padding:0}
+.field{display:grid;gap:4px;margin-bottom:10px}
+.field label,.lbl{font-size:13px;color:var(--muted);font-weight:500}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+input[type=number],input[type=date],select{width:100%;font:inherit;color:var(--text);background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;min-height:38px}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.check{display:flex;gap:8px;align-items:flex-start;font-size:14px;margin:6px 0 10px;cursor:pointer}
+.check input{margin-top:3px;accent-color:var(--accent)}
+.hint{font-size:12px;color:var(--muted);margin:0}
+.hx{display:grid;grid-template-columns:1fr 74px;gap:8px;align-items:center;padding:6px 0;border-top:1px dashed var(--border)}
+.hx:first-of-type{border-top:0}
+.hx .n{font-size:13px;line-height:1.3}
+.hx .n small{display:block;color:var(--muted);font-size:12px}
+.hx input{text-align:right}
+.presets{display:flex;flex-wrap:wrap;gap:6px}
+.btn{appearance:none;font:inherit;font-size:13px;font-weight:600;border:1px solid var(--border);background:var(--surface-2);color:var(--text);border-radius:999px;padding:6px 12px;cursor:pointer}
+.btn:hover{border-color:var(--accent);color:var(--accent-text)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+:root[data-theme="dark"] .btn.primary{color:#062b23}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn.primary{color:#062b23}}
+
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.kpis.k3{grid-template-columns:repeat(3,1fr)}
+@media (max-width:640px){.kpis,.kpis.k3{grid-template-columns:1fr 1fr}}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;box-shadow:var(--shadow)}
+.kpi .t{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.kpi .v{font-size:clamp(17px,2.2vw,22px);font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px}
+.kpi.main{border-color:var(--accent);background:var(--accent-2)}
+.kpi.main .v{color:var(--accent-text)}
+.stack{display:flex;height:14px;border-radius:999px;overflow:hidden;background:var(--surface-2);margin:12px 0 8px}
+.stack span{display:block;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:13px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+
+.step{display:grid;grid-template-columns:34px 1fr;gap:12px}
+.step .num{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:700;font-size:14px}
+:root[data-theme="dark"] .step .num{color:#062b23}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .step .num{color:#062b23}}
+.step h2{margin:3px 0 4px}
+.step .why{color:var(--muted);font-size:13.5px;margin:0 0 10px}
+table.calc{width:100%;border-collapse:collapse;font-size:14px}
+table.calc td{padding:8px 6px;border-top:1px solid var(--border);vertical-align:top}
+table.calc tr:first-child td{border-top:0}
+table.calc td.v{text-align:right;font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+table.calc td .f{display:block;font-size:12.5px;color:var(--muted);font-family:ui-monospace,SFMono-Regular,Consolas,monospace;margin-top:2px;word-break:break-word}
+table.calc td .tip{display:block;font-size:12.5px;color:var(--info);margin-top:3px}
+table.calc tr.total td{border-top:2px solid var(--text);font-weight:700}
+table.calc tr.total td.v{font-size:15px}
+table.calc tr.sub td{color:var(--muted)}
+table.calc .neg{color:var(--c-ded)}
+.alert{border-radius:10px;padding:10px 12px;font-size:13.5px;margin:0 0 10px;border:1px solid transparent}
+.alert.warn{background:var(--warn-bg);color:var(--warn)}
+.alert.danger{background:var(--danger-bg);color:var(--danger)}
+.alert.info{background:var(--info-bg);color:var(--info)}
+.alert b{font-weight:700}
+.muted{color:var(--muted)}
+.mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+
+table.ref{width:100%;border-collapse:collapse;font-size:14px}
+table.ref th,table.ref td{text-align:left;padding:8px;border-bottom:1px solid var(--border)}
+table.ref th{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+table.ref td.r,table.ref th.r{text-align:right;font-variant-numeric:tabular-nums}
+.scroll{overflow-x:auto}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;margin:6px 0 4px}
+.flow .box{flex:1 1 150px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:10px}
+.flow .box b{display:block;font-size:14px}
+.flow .box span{font-size:12.5px;color:var(--muted)}
+.flow .arr{align-self:center;color:var(--muted);font-weight:700}
+@media (max-width:640px){.flow .arr{display:none}}
+dl.glos{display:grid;grid-template-columns:200px 1fr;gap:8px 16px;margin:0}
+dl.glos dt{font-weight:700}
+dl.glos dd{margin:0;color:var(--muted)}
+@media (max-width:640px){dl.glos{grid-template-columns:1fr} dl.glos dd{margin-bottom:8px}}
+.quiz .q{border-top:1px solid var(--border);padding:12px 0}
+.quiz .q:first-child{border-top:0}
+.quiz .q p{margin:0 0 8px;font-weight:600}
+.quiz .opts{display:flex;flex-wrap:wrap;gap:6px}
+.quiz .opts .btn.ok{background:var(--accent-2);border-color:var(--accent);color:var(--accent-text)}
+.quiz .opts .btn.bad{background:var(--danger-bg);border-color:var(--danger);color:var(--danger)}
+.quiz .fb{font-size:13.5px;margin-top:8px;color:var(--muted)}
+.cal{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px}
+.cal .d{font-size:12px;border-radius:6px;padding:4px 6px;border:1px solid var(--border);background:var(--surface-2);min-width:62px;text-align:center;line-height:1.25}
+.cal .d.h{background:var(--accent-2);border-color:var(--accent);color:var(--accent-text);font-weight:600}
+.cal .d.f{background:var(--warn-bg);color:var(--warn)}
+.cal .d.s{opacity:.7}
+.cal .d.r{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700}
+footer{color:var(--muted);font-size:13px;padding:24px 0 40px}
+.sticky{position:sticky;top:12px}
+@media (max-width:900px){.sticky{position:static}}
+/* ---------- Sandbox ---------- */
+.sb-top{margin-bottom:14px}
+.sb-prog{height:6px;background:var(--surface-2);border-radius:999px;overflow:hidden;margin-bottom:10px}
+.sb-prog span{display:block;height:100%;background:var(--accent);transition:width .3s}
+.sb-pills{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin}
+.sb-pill{appearance:none;font:inherit;white-space:nowrap;font-size:12.5px;border:1px solid var(--border);border-radius:999px;padding:4px 10px;background:var(--surface);color:var(--muted);cursor:pointer}
+.sb-pill.done{color:var(--text);border-color:var(--accent)}
+.sb-pill.cur{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+:root[data-theme="dark"] .sb-pill.cur{color:#062b23}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .sb-pill.cur{color:#062b23}}
+.sb-grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start}
+@media (max-width:980px){.sb-grid{grid-template-columns:1fr}}
+.sb-side{position:sticky;top:12px}
+@media (max-width:980px){.sb-side{position:static}}
+.sb-main{padding:20px}
+.sb-count{font-size:12px;font-weight:700;color:var(--accent-text);text-transform:uppercase;letter-spacing:.06em}
+.sb-main h2{font-size:clamp(20px,2.6vw,26px);margin:2px 0 8px;letter-spacing:-.01em}
+.sb-lead{font-size:15.5px;margin:0 0 6px}
+.sb-lead + .sb-lead{color:var(--muted);font-size:14.5px}
+.sb-sec{margin-top:18px}
+.sb-sec > h3{display:flex;align-items:center;gap:8px;font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 8px}
+.sb-sec > h3::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.sb-sec.ctrls{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.ctrl{margin-bottom:10px}
+.ctrl:last-child{margin-bottom:0}
+.ctrl > label,.ctrl > .lbl{display:block;font-size:13px;color:var(--muted);font-weight:600;margin-bottom:4px}
+.ctrl-in{display:grid;grid-template-columns:minmax(0,1fr) 140px;gap:10px;align-items:center}
+.ctrl-in input[type=range]{width:100%;accent-color:var(--accent)}
+.ctrl input[type=number],.ctrl select{background:var(--surface)}
+.ctrl .check{margin:0}
+.eq{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:8px 0;padding:10px;background:var(--bg);border:1px dashed var(--border);border-radius:10px}
+.eq .cap{flex-basis:100%;font-size:12.5px;color:var(--muted);margin-bottom:2px}
+.tok{display:inline-flex;flex-direction:column;align-items:center;padding:4px 10px;border-radius:8px;line-height:1.2;border:1px solid transparent}
+.tok b{font-variant-numeric:tabular-nums;font-size:15px}
+.tok small{font-size:11px;opacity:.85}
+.tok.in{background:var(--info-bg);color:var(--info)}
+.tok.k{background:var(--warn-bg);color:var(--warn)}
+.tok.out{background:var(--accent-2);color:var(--accent-text);border-color:var(--accent);animation:pop .45s ease-out}
+.op{font-weight:700;color:var(--muted);font-size:18px;padding:0 2px}
+@keyframes pop{from{transform:scale(.93)}to{transform:none}}
+@media (prefers-reduced-motion: reduce){.tok.out{animation:none}.sb-prog span{transition:none}}
+.toklegend{display:flex;flex-wrap:wrap;gap:8px;font-size:12.5px}
+.checks{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.checks li{display:grid;grid-template-columns:22px 1fr;gap:6px;font-size:14px}
+.checks li::before{font-weight:700;text-align:center;border-radius:50%;width:20px;height:20px;line-height:20px;font-size:12px}
+.checks li.ok::before{content:"✓";background:var(--accent-2);color:var(--accent-text)}
+.checks li.no::before{content:"✗";background:var(--surface-2);color:var(--muted)}
+.checks li.bad::before{content:"!";background:var(--danger-bg);color:var(--danger)}
+.try{background:var(--info-bg);color:var(--info);border-radius:10px;padding:10px 12px;font-size:14px}
+.try b{font-weight:700}
+.quizbox{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.quizbox input{flex:1 1 180px;font:inherit;color:var(--text);background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;min-height:38px}
+.quizfb{font-size:14px;margin-top:8px}
+.quizfb.ok{color:var(--accent-text)}
+.quizfb.bad{color:var(--danger)}
+.refs{display:grid;gap:8px}
+.refcard{border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:10px;padding:10px 12px;background:var(--surface)}
+.refcard.t-decreto,.refcard.t-resolución{border-left-color:var(--c-apo)}
+.refcard.t-doctrina,.refcard.t-práctica{border-left-color:var(--warn)}
+.refcard .rh{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin-bottom:4px}
+.refcard .rn{font-weight:700;font-size:14px}
+.refcard p{margin:0;font-size:13.5px;color:var(--muted)}
+.refcard a{font-size:13px;font-weight:600}
+.tb{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 8px;border-radius:999px;background:var(--accent-2);color:var(--accent-text)}
+.tb.t-decreto,.tb.t-resolución{background:var(--info-bg);color:var(--info)}
+.tb.t-doctrina,.tb.t-práctica{background:var(--warn-bg);color:var(--warn)}
+.sb-nav{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:14px}
+@media (max-width:640px){#sbKeys{display:none}}
+.slip h2{display:flex;justify-content:space-between;align-items:baseline;font-size:15px;margin:0 0 2px}
+.slip .who{font-size:12.5px;color:var(--muted);margin:0 0 10px}
+.slip h4{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:12px 0 4px;padding-top:8px;border-top:1px dashed var(--border)}
+.slip h4:first-of-type{border-top:0;padding-top:0}
+.ln{display:flex;justify-content:space-between;gap:10px;padding:3px 6px;margin:0 -6px;font-size:13.5px;border-radius:6px;transition:background .3s}
+.ln span:last-child{font-variant-numeric:tabular-nums;white-space:nowrap}
+.ln.pend{color:var(--muted);opacity:.55}
+.ln.now{background:var(--accent-2);color:var(--accent-text);font-weight:600}
+.ln.tot{font-weight:700;border-top:1px solid var(--border);margin-top:4px;padding-top:6px}
+.ln.big{font-size:16px;font-weight:800}
+.day24{display:grid;grid-template-columns:repeat(24,1fr);gap:2px;margin-top:6px}
+.day24 span{height:24px;border-radius:3px}
+.day24 .dd{background:var(--warn-bg);border:1px solid var(--warn)}
+.day24 .nn{background:var(--c-apo)}
+.day24lbl{display:grid;grid-template-columns:repeat(24,1fr);font-size:10.5px;color:var(--muted);margin-top:2px}
+.tl{display:flex;flex-wrap:wrap;gap:6px}
+.tl span{flex:1 1 110px;border:1px solid var(--border);border-radius:10px;padding:8px;text-align:center;font-size:13px;background:var(--surface-2)}
+.tl span b{display:block;font-size:18px}
+.tl span.on{border-color:var(--accent);background:var(--accent-2);color:var(--accent-text)}
+.bar3{display:flex;height:28px;border-radius:8px;overflow:hidden;background:var(--surface-2);font-size:11.5px;font-weight:700;color:#fff}
+.bar3 span{display:flex;align-items:center;justify-content:center;overflow:hidden;white-space:nowrap}
+.inout{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:640px){.inout{grid-template-columns:1fr}}
+.inout > div{border:1px solid var(--border);border-radius:10px;padding:10px}
+.inout h4{margin:0 0 6px;font-size:13px}
+table.calc tr.hl td{background:var(--accent-2);color:var(--accent-text);font-weight:700}
+.toggle-theme{position:absolute;top:16px;right:16px}
+header.top{position:relative}
+@media (max-width:640px){.toggle-theme{position:static;margin-top:10px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <button class="btn toggle-theme" id="themeBtn" type="button" aria-label="Cambiar tema claro u oscuro">Tema</button>
+    <h1>Calculadora didáctica de nómina · Colombia 2026</h1>
+    <p>Cambia los datos y mira, paso a paso, cómo se calcula cada peso: salario, auxilio de transporte, horas extras, recargos, seguridad social, retención en la fuente, prestaciones y lo que le cuesta el trabajador a la empresa.</p>
+    <div class="chips" id="chips"></div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Secciones">
+    <button role="tab" aria-selected="true" aria-controls="tab-sandbox" id="t-sandbox">★ Sandbox paso a paso</button>
+    <button role="tab" aria-selected="false" aria-controls="tab-nomina" id="t-nomina">1 · Nómina mensual</button>
+    <button role="tab" aria-selected="false" aria-controls="tab-prest" id="t-prest">2 · Prestaciones y liquidación</button>
+    <button role="tab" aria-selected="false" aria-controls="tab-vac" id="t-vac">3 · Vacaciones</button>
+    <button role="tab" aria-selected="false" aria-controls="tab-aprende" id="t-aprende">4 · Aprende y practica</button>
+  </nav>
+
+  <!-- ===================== SANDBOX ===================== -->
+  <section class="panel active" id="tab-sandbox" role="tabpanel" aria-labelledby="t-sandbox">
+    <div class="sb-top">
+      <div class="sb-prog" aria-hidden="true"><span id="sbProg"></span></div>
+      <div class="sb-pills" id="sbPills" role="list" aria-label="Pasos del recorrido"></div>
+    </div>
+    <div class="sb-grid">
+      <div>
+        <article class="card sb-main" id="sbMain" aria-live="polite"></article>
+        <div class="sb-nav">
+          <button type="button" class="btn" id="sbPrev">← Anterior</button>
+          <span class="hint" id="sbKeys">Tip: usa las flechas ← → del teclado</span>
+          <button type="button" class="btn primary" id="sbNext">Siguiente →</button>
+        </div>
+      </div>
+      <aside class="sb-side">
+        <div class="card slip" id="sbSlip" aria-label="Desprendible de nómina"></div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ===================== NÓMINA MENSUAL ===================== -->
+  <section class="panel" id="tab-nomina" role="tabpanel" aria-labelledby="t-nomina">
+    <div class="grid">
+      <form class="form" id="fNomina" autocomplete="off" onsubmit="return false">
+        <div class="card">
+          <legend>Ejemplos rápidos</legend>
+          <div class="presets" id="presets"></div>
+          <p class="hint" style="margin-top:8px">Carga un caso típico y luego modifícalo para ver qué cambia.</p>
+        </div>
+
+        <div class="card">
+          <fieldset>
+            <legend>1. Contrato y periodo</legend>
+            <div class="row2">
+              <div class="field"><label for="mes">Mes que liquidas</label><select id="mes"></select></div>
+              <div class="field"><label for="jornadaMax">Jornada máxima legal</label>
+                <select id="jornadaMax"><option value="44">44 h/semana</option><option value="42">42 h/semana</option></select></div>
+            </div>
+            <p class="hint" id="mesHint" style="margin:-4px 0 10px"></p>
+            <div class="row2">
+              <div class="field"><label for="tipoSalario">Tipo de salario</label>
+                <select id="tipoSalario"><option value="ordinario">Ordinario</option><option value="integral">Integral</option></select></div>
+              <div class="field"><label for="jornadaTipo">Jornada del trabajador</label>
+                <select id="jornadaTipo"><option value="completo">Tiempo completo</option><option value="medio">Medio tiempo</option><option value="otra">Otra (horas/semana)</option></select></div>
+            </div>
+            <div class="field" id="boxHoras" hidden><label for="horasSemana">Horas pactadas por semana</label><input type="number" id="horasSemana" min="1" max="44" step="1" value="24"></div>
+            <div class="field"><label for="salario">Salario mensual pactado (COP)</label><input type="number" id="salario" min="0" step="1000"><p class="hint" id="salarioHint"></p></div>
+            <div class="field"><label for="diasPeriodo">Días del periodo (mes comercial = 30)</label><input type="number" id="diasPeriodo" min="1" max="30" step="1" value="30"><p class="hint">Usa menos de 30 si el trabajador ingresó o se retiró en este mes.</p></div>
+            <label class="check" id="boxAux" hidden><input type="checkbox" id="auxCompleto" checked><span>Pagar auxilio de transporte completo (va a trabajar todos los días)</span></label>
+          </fieldset>
+        </div>
+
+        <div class="card">
+          <fieldset>
+            <legend>2. Novedades del mes</legend>
+            <div class="row2">
+              <div class="field"><label for="diasVac">Días de vacaciones (calendario)</label><input type="number" id="diasVac" min="0" max="30" value="0"></div>
+              <div class="field"><label for="diasIncap">Días de incapacidad (enf. general)</label><input type="number" id="diasIncap" min="0" max="30" value="0"></div>
+            </div>
+            <p class="hint">¿Solo sabes los días hábiles? Conviértelos en la pestaña 3 · Vacaciones.</p>
+          </fieldset>
+        </div>
+
+        <div class="card">
+          <fieldset>
+            <legend>3. Horas extras y recargos (cantidad de horas)</legend>
+            <div id="hxList"></div>
+            <p class="hint" style="margin-top:8px">Nocturno = 7:00 p.m. a 6:00 a.m. Máximo 2 horas extra al día y 12 a la semana.</p>
+          </fieldset>
+        </div>
+
+        <div class="card">
+          <fieldset>
+            <legend>4. Otros pagos y descuentos</legend>
+            <div class="field"><label for="comisiones">Comisiones o bonificación salarial</label><input type="number" id="comisiones" min="0" step="1000" value="0"></div>
+            <div class="field"><label for="noSalarial">Bonificación NO salarial (pactada)</label><input type="number" id="noSalarial" min="0" step="1000" value="0"><p class="hint">No suma a seguridad social… salvo lo que supere el 40 % del total (Ley 1393).</p></div>
+            <div class="field"><label for="otrasDed">Otros descuentos (préstamo, libranza, embargo)</label><input type="number" id="otrasDed" min="0" step="1000" value="0"></div>
+          </fieldset>
+        </div>
+
+        <div class="card">
+          <fieldset>
+            <legend>5. Retención en la fuente</legend>
+            <label class="check"><input type="checkbox" id="calcRete" checked><span>Calcular retención (procedimiento 1)</span></label>
+            <label class="check"><input type="checkbox" id="dependientes"><span>Tiene dependientes económicos (deducción 10 %)</span></label>
+            <div class="row2">
+              <div class="field"><label for="prepagada">Medicina prepagada / mes</label><input type="number" id="prepagada" min="0" step="1000" value="0"></div>
+              <div class="field"><label for="vivienda">Intereses de vivienda / mes</label><input type="number" id="vivienda" min="0" step="1000" value="0"></div>
+            </div>
+          </fieldset>
+        </div>
+
+        <div class="card">
+          <fieldset>
+            <legend>6. Datos del empleador</legend>
+            <div class="field"><label for="arl">Clase de riesgo ARL</label>
+              <select id="arl">
+                <option value="0.00522">I · 0,522 % (oficina)</option>
+                <option value="0.01044">II · 1,044 % (algunos procesos manufactureros)</option>
+                <option value="0.02436">III · 2,436 % (procesos industriales)</option>
+                <option value="0.0435">IV · 4,350 % (transporte, vigilancia)</option>
+                <option value="0.0696">V · 6,960 % (alturas, minería, construcción)</option>
+              </select></div>
+            <label class="check"><input type="checkbox" id="exonerado" checked><span>Empresa exonerada (art. 114-1 E.T.): no paga salud 8,5 %, SENA ni ICBF por quienes ganan menos de 10 SMMLV</span></label>
+          </fieldset>
+        </div>
+      </form>
+
+      <div>
+        <div class="sticky">
+          <div class="kpis" id="kpis"></div>
+          <div class="card" style="margin-top:12px">
+            <div class="lbl">¿A dónde va el costo total de este trabajador?</div>
+            <div class="stack" id="stack" role="img" aria-label="Distribución del costo"></div>
+            <div class="legend" id="legend"></div>
+          </div>
+        </div>
+        <div id="alerts" style="margin-top:14px"></div>
+        <div id="steps"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PRESTACIONES ===================== -->
+  <section class="panel" id="tab-prest" role="tabpanel" aria-labelledby="t-prest">
+    <div class="grid">
+      <form class="form" id="fPrest" autocomplete="off" onsubmit="return false">
+        <div class="card">
+          <fieldset>
+            <legend>Datos para liquidar</legend>
+            <div class="field"><label for="pTipo">Tipo de salario</label>
+              <select id="pTipo"><option value="ordinario">Ordinario</option><option value="integral">Integral</option></select></div>
+            <div class="row2">
+              <div class="field"><label for="pIngreso">Fecha de ingreso</label><input type="date" id="pIngreso" value="2025-03-10"></div>
+              <div class="field"><label for="pCorte">Fecha de corte / retiro</label><input type="date" id="pCorte" value="2026-11-19"></div>
+            </div>
+            <div class="field"><label for="pSalario">Salario básico mensual</label><input type="number" id="pSalario" min="0" step="1000" value="2500000"></div>
+            <div class="field"><label for="pExtras">Promedio mensual de horas extras y recargos</label><input type="number" id="pExtras" min="0" step="1000" value="0"><p class="hint">Cuenta para prima y cesantías, no para vacaciones.</p></div>
+            <div class="field"><label for="pComis">Promedio mensual de comisiones</label><input type="number" id="pComis" min="0" step="1000" value="0"><p class="hint">Cuenta para prima, cesantías y vacaciones.</p></div>
+            <label class="check"><input type="checkbox" id="pAux" checked><span>Tiene derecho a auxilio de transporte (gana hasta 2 SMMLV)</span></label>
+            <div class="field"><label for="pVacTomadas">Días hábiles de vacaciones ya disfrutados (en todo el contrato)</label><input type="number" id="pVacTomadas" min="0" step="1" value="15"></div>
+            <div class="field"><label for="pPrimaPagada">¿Ya se pagó la prima de este semestre?</label>
+              <select id="pPrimaPagada"><option value="no">No</option><option value="si">Sí</option></select></div>
+            <div class="field"><label for="pMotivo">Motivo de terminación</label>
+              <select id="pMotivo">
+                <option value="corte">Solo quiero ver lo acumulado (no hay retiro)</option>
+                <option value="renuncia">Renuncia o despido con justa causa</option>
+                <option value="sinjusta">Despido sin justa causa · contrato indefinido</option>
+              </select></div>
+          </fieldset>
+        </div>
+      </form>
+      <div>
+        <div class="kpis k3" id="pKpis"></div>
+        <div id="pAlerts" style="margin-top:14px"></div>
+        <div id="pSteps"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== VACACIONES ===================== -->
+  <section class="panel" id="tab-vac" role="tabpanel" aria-labelledby="t-vac">
+    <div class="grid">
+      <form class="form" id="fVac" autocomplete="off" onsubmit="return false">
+        <div class="card">
+          <fieldset>
+            <legend>Programar y pagar vacaciones</legend>
+            <div class="field"><label for="vSalario">Salario base (sin auxilio de transporte)</label><input type="number" id="vSalario" min="0" step="1000" value="1750905"><p class="hint">Si el salario es variable, usa el promedio del último año (sin horas extra).</p></div>
+            <div class="row2">
+              <div class="field"><label for="vInicio">Primer día de vacaciones</label><input type="date" id="vInicio" value="2026-12-14"></div>
+              <div class="field"><label for="vDias">Días hábiles a disfrutar</label><input type="number" id="vDias" min="1" max="60" value="15"></div>
+            </div>
+            <label class="check"><input type="checkbox" id="vSabado" checked><span>El sábado cuenta como día hábil</span></label>
+            <p class="hint">Por regla general el sábado es hábil. Si tu reglamento o contrato dice que la semana laboral es de lunes a viernes, desmárcalo.</p>
+          </fieldset>
+        </div>
+        <div class="card">
+          <fieldset>
+            <legend>¿Cuántos días tengo acumulados?</legend>
+            <div class="row2">
+              <div class="field"><label for="vIngreso">Fecha de ingreso</label><input type="date" id="vIngreso" value="2024-06-01"></div>
+              <div class="field"><label for="vCorte">Fecha de corte</label><input type="date" id="vCorte" value="2026-11-19"></div>
+            </div>
+            <div class="field"><label for="vTomados">Días hábiles ya disfrutados</label><input type="number" id="vTomados" min="0" value="15"></div>
+          </fieldset>
+        </div>
+      </form>
+      <div id="vOut"></div>
+    </div>
+  </section>
+
+  <!-- ===================== APRENDE ===================== -->
+  <section class="panel" id="tab-aprende" role="tabpanel" aria-labelledby="t-aprende">
+    <div id="learn"></div>
+  </section>
+
+  <footer>
+    <p><b>Aviso:</b> herramienta educativa. Usa los valores vigentes que encontramos para 2026 (SMMLV Decreto 1469 de 2025 / Decreto transitorio 0159 de 2026, auxilio de transporte Decreto 1470 de 2025, UVT Resolución DIAN 000238 de 2025, Leyes 2101 de 2021 y 2466 de 2025). Hay casos especiales (pensionados, aprendices SENA, trabajadores por días, Decreto 2616 de 2013, reforma pensional) que no se modelan aquí. Antes de pagar una nómina real, valida con un contador o con tu software de nómina.</p>
+  </footer>
+</div>
+<script src="nomina.js"></script>
+<script src="sandbox.js"></script>
+</body>
+</html>
